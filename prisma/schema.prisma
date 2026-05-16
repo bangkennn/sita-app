@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DOSEN
+  MAHASISWA
+}
+
+enum StatusPengajuan {
+  MENUNGGU
+  DITERIMA
+  DITOLAK
+}
+
+enum StatusBab {
+  BELUM_UPLOAD
+  MENUNGGU_REVIEW
+  PERLU_REVISI
+  ACC
+}
+
+enum FaseBimbingan {
+  BAB_1_3
+  SEMPRO
+  BAB_4_5
+  SELESAI
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  dosen     Dosen?
+  mahasiswa Mahasiswa?
+}
+
+model Dosen {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nama           String
+  nip            String   @unique
+  prodi          String
+  isActive       Boolean  @default(true)
+  qrCodeUrl      String?
+  qrCodePublicId String?
+  pengajuan      Pengajuan[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Mahasiswa {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nama      String
+  nim       String    @unique
+  prodi     String
+  angkatan  Int
+  pengajuan Pengajuan?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Pengajuan {
+  id             String          @id @default(cuid())
+  mahasiswaId    String          @unique
+  mahasiswa      Mahasiswa       @relation(fields: [mahasiswaId], references: [id], onDelete: Cascade)
+  dosenId        String
+  dosen          Dosen           @relation(fields: [dosenId], references: [id])
+  judulSkripsi   String
+  skFileUrl      String
+  skFilePublicId String
+  status         StatusPengajuan @default(MENUNGGU)
+  fase           FaseBimbingan   @default(BAB_1_3)
+  qrTerkirim     Boolean         @default(false)
+  qrTerkirimAt   DateTime?
+  catatanDosen   String?
+  dokumen        Dokumen[]
+  notifikasi     Notifikasi[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Dokumen {
+  id           String    @id @default(cuid())
+  pengajuanId  String
+  pengajuan    Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  nomorBab     Int
+  judulBab     String
+  fileUrl      String
+  filePublicId String
+  status       StatusBab @default(MENUNGGU_REVIEW)
+  versi        Int       @default(1)
+  komentar     Komentar[]
+  uploadedAt   DateTime  @default(now())
+  reviewedAt   DateTime?
+}
+
+model Komentar {
+  id          String   @id @default(cuid())
+  dokumenId   String
+  dokumen     Dokumen  @relation(fields: [dokumenId], references: [id], onDelete: Cascade)
+  authorId    String
+  isiKomentar String
+  createdAt   DateTime @default(now())
+}
+
+model Notifikasi {
+  id          String    @id @default(cuid())
+  pengajuanId String
+  pengajuan   Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  userId      String
+  pesan       String
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
