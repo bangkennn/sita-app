@@ -31,6 +31,23 @@ export async function uploadToCloudinary(
   }
 }
 
+export async function uploadImageBuffer(
+  buffer: Buffer,
+  mimeType: string,
+  folder: string
+): Promise<UploadResult> {
+  const dataUri = `data:${mimeType};base64,${buffer.toString("base64")}`
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: `sita/${folder}`,
+    resource_type: "image",
+  })
+
+  return {
+    url: result.secure_url,
+    publicId: result.public_id,
+  }
+}
+
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
   await cloudinary.uploader.destroy(publicId)
 }
