@@ -95,7 +95,16 @@ export default async function AdminDashboardPage() {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell>{item.dosen.nama}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{item.dosen.nama}</p>
+                        {item.dosen2 ? (
+                          <p className="text-muted-foreground">
+                            {item.dosen2.nama}
+                          </p>
+                        ) : null}
+                      </div>
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate">
                       {item.judulSkripsi}
                     </TableCell>

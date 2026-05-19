@@ -26,6 +26,7 @@ export interface RecentPengajuanItem {
   createdAt: string
   mahasiswa: { nama: string; nim: string }
   dosen: { nama: string }
+  dosen2: { nama: string } | null
 }
 
 export interface MonitoringPengajuanItem {
@@ -36,6 +37,7 @@ export interface MonitoringPengajuanItem {
   createdAt: string
   mahasiswa: { nama: string; nim: string }
   dosen: { nama: string }
+  dosen2: { nama: string } | null
 }
 
 export interface ApiSuccessResponse<T> {

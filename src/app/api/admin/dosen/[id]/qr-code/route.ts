@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 
-import { deleteFromCloudinary, uploadImageBuffer } from "@/lib/cloudinary"
 import { requireRole } from "@/lib/auth-helpers"
 import { prisma } from "@/lib/prisma"
+import { deleteFile, uploadFile } from "@/lib/upload"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_TYPES = new Set([
@@ -57,21 +57,22 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const upload = await uploadImageBuffer(buffer, file.type, "qr-codes")
+    const { url, pathname } = await uploadFile(
+      buffer,
+      file.name,
+      "qr-codes",
+      file.type
+    )
 
-    if (dosen.qrCodePublicId) {
-      try {
-        await deleteFromCloudinary(dosen.qrCodePublicId)
-      } catch {
-        // ignore cleanup failure
-      }
+    if (dosen.qrCodeUrl) {
+      await deleteFile(dosen.qrCodeUrl)
     }
 
     const updated = await prisma.dosen.update({
       where: { id },
       data: {
-        qrCodeUrl: upload.url,
-        qrCodePublicId: upload.publicId,
+        qrCodeUrl: url,
+        qrCodePublicId: pathname,
       },
     })
 

@@ -34,6 +34,7 @@ export async function getRecentPengajuan(
     include: {
       mahasiswa: { select: { nama: true, nim: true } },
       dosen: { select: { nama: true } },
+      dosen2: { select: { nama: true } },
     },
   })
 
@@ -45,5 +46,6 @@ export async function getRecentPengajuan(
     createdAt: row.createdAt.toISOString(),
     mahasiswa: row.mahasiswa,
     dosen: row.dosen,
+    dosen2: row.dosen2,
   }))
 }

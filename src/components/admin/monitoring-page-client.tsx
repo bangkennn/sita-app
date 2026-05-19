@@ -98,7 +98,22 @@ export function MonitoringPageClient() {
                       {item.mahasiswa.nama}
                     </TableCell>
                     <TableCell>{item.mahasiswa.nim}</TableCell>
-                    <TableCell>{item.dosen.nama}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>
+                          <span className="text-muted-foreground">I: </span>
+                          {item.dosen.nama}
+                        </p>
+                        {item.dosen2 ? (
+                          <p>
+                            <span className="text-muted-foreground">II: </span>
+                            {item.dosen2.nama}
+                          </p>
+                        ) : (
+                          <p className="text-muted-foreground">II: —</p>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate">
                       {item.judulSkripsi}
                     </TableCell>

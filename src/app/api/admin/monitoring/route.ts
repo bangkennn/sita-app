@@ -14,6 +14,7 @@ export async function GET() {
       include: {
         mahasiswa: { select: { nama: true, nim: true } },
         dosen: { select: { nama: true } },
+        dosen2: { select: { nama: true } },
       },
     })
 
@@ -25,6 +26,7 @@ export async function GET() {
       createdAt: row.createdAt.toISOString(),
       mahasiswa: row.mahasiswa,
       dosen: row.dosen,
+      dosen2: row.dosen2,
     }))
 
     return NextResponse.json({ success: true, data })

@@ -92,7 +92,8 @@ model Dosen {
   isActive       Boolean  @default(true)
   qrCodeUrl      String?
   qrCodePublicId String?
-  pengajuan      Pengajuan[]
+  pengajuan      Pengajuan[] @relation("Pembimbing1")
+  pengajuan2     Pengajuan[] @relation("Pembimbing2")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -115,7 +116,9 @@ model Pengajuan {
   mahasiswaId    String          @unique
   mahasiswa      Mahasiswa       @relation(fields: [mahasiswaId], references: [id], onDelete: Cascade)
   dosenId        String
-  dosen          Dosen           @relation(fields: [dosenId], references: [id])
+  dosen          Dosen           @relation("Pembimbing1", fields: [dosenId], references: [id])
+  dosenId2       String?
+  dosen2         Dosen?          @relation("Pembimbing2", fields: [dosenId2], references: [id])
   judulSkripsi   String
   skFileUrl      String
   skFilePublicId String
@@ -131,18 +134,32 @@ model Pengajuan {
 }
 
 model Dokumen {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   pengajuanId  String
-  pengajuan    Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  pengajuan    Pengajuan   @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
   nomorBab     Int
   judulBab     String
   fileUrl      String
   filePublicId String
-  status       StatusBab @default(MENUNGGU_REVIEW)
-  versi        Int       @default(1)
+  status       StatusBab   @default(MENUNGGU_REVIEW)
+  versi        Int         @default(1)
   komentar     Komentar[]
-  uploadedAt   DateTime  @default(now())
+  dosenFiles   DosenFile[]
+  uploadedAt   DateTime    @default(now())
   reviewedAt   DateTime?
+}
+
+model DosenFile {
+  id           String   @id @default(cuid())
+  dokumenId    String
+  dokumen      Dokumen  @relation(fields: [dokumenId], references: [id], onDelete: Cascade)
+  dosenId      String
+  fileUrl      String
+  filePublicId String
+  fileName     String
+  fileType     String
+  keterangan   String?
+  uploadedAt   DateTime @default(now())
 }
 
 model Komentar {
