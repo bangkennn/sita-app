@@ -307,7 +307,7 @@ export default function DosenMahasiswaDetailPage({
                     {dokumen.komentar.map((k) => (
                       <div
                         key={k.id}
-                        className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-gradient-to-br from-indigo-500 to-violet-500 px-4 py-2 text-sm text-white shadow-sm"
+                        className="ml-auto max-w-[85%] rounded-2xl rounded-tl-none bg-[#EEF3FB] px-4 py-2 text-sm text-gray-800"
                       >
                         {k.isiKomentar}
                       </div>
@@ -382,31 +382,27 @@ export default function DosenMahasiswaDetailPage({
       </div>
 
       {canShowQrSection() && (
-        <Card className="rounded-xl border-2 border-transparent bg-gradient-to-br from-indigo-50 to-violet-50 p-[2px] shadow-lg">
-          <div className="rounded-[10px] bg-white">
-          <CardHeader>
-            <CardTitle className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+        <Card className="overflow-hidden rounded-2xl border-2 border-[#2C5EAD] shadow-sm">
+          <CardHeader className="border-b border-[#2C5EAD]/20 bg-[#EEF3FB]">
+            <CardTitle className="text-[#2C5EAD]">
               Kirim QR Code Seminar Proposal
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {pengajuan.qrTerkirim ? (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  QR Code sudah dikirim pada{" "}
-                  {format(new Date(pengajuan.qrTerkirimAt!), "dd MMM yyyy HH:mm", {
-                    locale: localeId,
-                  })}
-                </p>
-              </div>
+              <p className="text-sm text-gray-600">
+                QR Code sudah dikirim pada{" "}
+                {format(new Date(pengajuan.qrTerkirimAt!), "dd MMM yyyy HH:mm", {
+                  locale: localeId,
+                })}
+              </p>
             ) : (
-              <Button onClick={handleKirimQr} disabled={sendingQr}>
+              <Button onClick={handleKirimQr} disabled={sendingQr} size="lg">
                 <Send className="mr-2 size-4" />
                 {sendingQr ? "Mengirim..." : "Kirim QR Code ke Mahasiswa"}
               </Button>
             )}
           </CardContent>
-          </div>
         </Card>
       )}
 

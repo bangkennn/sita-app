@@ -20,9 +20,7 @@ export default async function DosenDashboardPage() {
   const session = await auth()
   const dosen = session?.user ? await getDosenByUserId(session.user.id) : null
 
-  if (!dosen) {
-    return null
-  }
+  if (!dosen) return null
 
   const stats = await prisma.$transaction(async (tx) => {
     const mahasiswaAktif = await tx.pengajuan.count({
@@ -32,7 +30,6 @@ export default async function DosenDashboardPage() {
         fase: { in: ["BAB_1_3", "SEMPRO", "BAB_4_5"] },
       },
     })
-
     const dokumenMenunggu = await tx.dokumen.count({
       where: {
         pengajuan: {
@@ -41,60 +38,55 @@ export default async function DosenDashboardPage() {
         status: "MENUNGGU_REVIEW",
       },
     })
-
     const permohonanBaru = await tx.pengajuan.count({
       where: {
         OR: [{ dosenId: dosen.id }, { dosenId2: dosen.id }],
         status: "MENUNGGU",
       },
     })
-
     const totalSelesai = await tx.pengajuan.count({
       where: {
         OR: [{ dosenId: dosen.id }, { dosenId2: dosen.id }],
         fase: "SELESAI",
       },
     })
-
     return { mahasiswaAktif, dokumenMenunggu, permohonanBaru, totalSelesai }
   })
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <WelcomeBanner
         name={dosen.nama}
         roleLabel="Dosen Pembimbing"
         description={`${dosen.prodi} · NIP ${dosen.nip}`}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Mahasiswa Aktif"
           value={stats.mahasiswaAktif}
           icon={Users}
-          description="Sedang bimbingan"
-          index={0}
         />
         <StatsCard
           title="Dokumen Review"
           value={stats.dokumenMenunggu}
           icon={FileSearch}
-          description="Perlu ditinjau"
-          index={1}
+          trend={
+            stats.dokumenMenunggu > 0
+              ? { value: "Perlu ditinjau", positive: false }
+              : undefined
+          }
         />
         <StatsCard
           title="Permohonan Baru"
           value={stats.permohonanBaru}
           icon={ClipboardList}
-          description="Menunggu persetujuan"
-          index={2}
         />
         <StatsCard
           title="Total Selesai"
           value={stats.totalSelesai}
           icon={CheckCircle2}
-          description="Bimbingan selesai"
-          index={3}
+          trend={{ value: "Selesai", positive: true }}
         />
       </div>
     </div>

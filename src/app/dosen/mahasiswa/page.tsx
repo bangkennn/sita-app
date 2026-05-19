@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -195,16 +194,17 @@ export default function DosenMahasiswaPage() {
                         }
                       }}
                     >
-                      <DialogTrigger>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => setSelectedPengajuanId(p.id)}
-                          type="button"
-                        >
-                          Tolak
-                        </Button>
-                      </DialogTrigger>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        type="button"
+                        onClick={() => {
+                          setSelectedPengajuanId(p.id)
+                          setRejectDialogOpen(true)
+                        }}
+                      >
+                        Tolak
+                      </Button>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Tolak Pengajuan</DialogTitle>

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { LucideIcon } from "lucide-react"
@@ -30,7 +31,7 @@ export function DarkSidebar({
   navItems,
   userName,
   userMeta,
-  portalLabel,
+  portalLabel: _portalLabel,
   headerExtra,
   onNavigate,
   className,
@@ -45,11 +46,20 @@ export function DarkSidebar({
       )}
     >
       <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
-        <div>
-          <p className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-xl font-bold text-transparent">
-            SiTA
-          </p>
-          <p className="text-xs text-slate-400">{portalLabel}</p>
+        <div className="flex items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt="SiTA Logo"
+            width={36}
+            height={36}
+            className="object-contain brightness-0 invert"
+          />
+          <div>
+            <p className="text-lg font-bold leading-none text-white">SiTA</p>
+            <p className="text-xs leading-none text-slate-400">
+              Bimbingan Tugas Akhir
+            </p>
+          </div>
         </div>
         {headerExtra}
       </div>

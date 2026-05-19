@@ -72,52 +72,43 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      <Button
-        variant="outline"
-        size="icon-sm"
-        className={cn(
-          "relative border-white/20 bg-white/10 text-white hover:bg-white/20",
-          !className?.includes("hidden") && "border-slate-200 bg-white text-slate-700"
-        )}
+      <button
+        type="button"
+        className="relative flex size-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((prev) => !prev)}
       >
-        <Bell
-          className={cn("size-4", unreadCount > 0 && "animate-bell-pulse")}
-        />
+        <Bell className="size-5" strokeWidth={1.75} />
         {unreadCount > 0 ? (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
+          <span className="absolute top-2 right-2 size-2 rounded-full bg-red-500 ring-2 ring-white" />
         ) : null}
         <span className="sr-only">Notifikasi</span>
-      </Button>
+      </button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
           <div className="flex items-center justify-between px-4 py-3">
-            <p className="text-sm font-semibold text-slate-900">Notifikasi</p>
+            <p className="text-sm font-semibold text-gray-800">Notifikasi</p>
             {unreadCount > 0 ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto px-2 py-1 text-xs text-indigo-600"
+              <button
+                type="button"
+                className="text-xs font-medium text-[#2C5EAD] hover:underline"
                 onClick={() => void handleMarkAllRead()}
               >
                 Tandai semua dibaca
-              </Button>
+              </button>
             ) : null}
           </div>
           <Separator />
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <p className="px-4 py-6 text-center text-sm text-slate-500">
+              <p className="px-4 py-6 text-center text-sm text-gray-500">
                 Memuat...
               </p>
             ) : items.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-slate-500">
-                🔔 Semua sudah terbaca!
+              <p className="px-4 py-8 text-center text-sm text-gray-500">
+                Semua sudah terbaca
               </p>
             ) : (
               <ul>
@@ -126,17 +117,17 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
                     <button
                       type="button"
                       className={cn(
-                        "w-full border-l-4 px-4 py-3 text-left transition-colors hover:bg-slate-50",
+                        "w-full border-l-4 px-4 py-3 text-left transition-colors hover:bg-gray-50",
                         !item.isRead
-                          ? "border-l-indigo-500 bg-indigo-50/80"
+                          ? "border-l-[#2C5EAD] bg-[#EEF3FB]"
                           : "border-l-transparent bg-white"
                       )}
                       onClick={() => void handleItemClick(item)}
                     >
-                      <p className="text-sm leading-snug text-slate-800">
+                      <p className="text-sm leading-snug text-gray-800">
                         {item.pesan}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-gray-500">
                         {relativeTime(item.createdAt)}
                       </p>
                     </button>
@@ -149,7 +140,7 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
           <div className="p-2">
             <Link
               href={viewAllHref}
-              className="block rounded-lg px-3 py-2 text-center text-sm font-medium text-indigo-600 hover:bg-indigo-50"
+              className="block rounded-xl px-3 py-2 text-center text-sm font-medium text-[#2C5EAD] hover:bg-[#EEF3FB]"
               onClick={() => setOpen(false)}
             >
               Lihat semua

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
@@ -88,7 +89,7 @@ function LoginForm() {
   }
 
   return (
-    <Card className="card-elevated border-0 shadow-xl ring-0">
+    <Card className="rounded-2xl border border-gray-100 shadow-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">
           Selamat Datang
@@ -135,7 +136,7 @@ function LoginForm() {
         <CardFooter className="flex flex-col gap-4 border-0 bg-transparent pt-2">
           <Button
             type="submit"
-            className="btn-gradient h-11 w-full text-base"
+            className="h-11 w-full rounded-xl text-base"
             disabled={isLoading}
           >
             {isLoading ? "Memproses..." : "Masuk"}
@@ -159,7 +160,14 @@ function LoginFormFallback() {
   return (
     <Card className="card-elevated border-0 shadow-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">SiTA</CardTitle>
+        <Image
+          src="/logo.png"
+          alt="SiTA Logo"
+          width={48}
+          height={48}
+          className="mx-auto mb-2 object-contain"
+        />
+        <CardTitle className="text-2xl font-bold">Selamat Datang</CardTitle>
         <CardDescription>Memuat formulir...</CardDescription>
       </CardHeader>
     </Card>

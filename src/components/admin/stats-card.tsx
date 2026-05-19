@@ -1,1 +1,1 @@
-export { GradientStatCard as StatsCard } from "@/components/ui/gradient-stat-card"
+export { StatCard as StatsCard } from "@/components/ui/stat-card"

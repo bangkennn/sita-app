@@ -1,65 +1,67 @@
-import { Brain, Bell, GraduationCap, Sparkles } from "lucide-react"
+import Image from "next/image"
+import { Check, Sparkles } from "lucide-react"
 import Link from "next/link"
 
 const features = [
-  { icon: Sparkles, text: "Parsing SK otomatis dengan AI" },
-  { icon: GraduationCap, text: "Bimbingan digital terstruktur per bab" },
-  { icon: Bell, text: "Notifikasi real-time untuk semua pihak" },
+  "Parsing SK otomatis dengan AI",
+  "Bimbingan digital terstruktur per bab",
+  "Notifikasi real-time untuk semua pihak",
 ] as const
 
-interface AuthBrandPanelProps {
-  title?: string
-  subtitle?: string
-}
-
-export function AuthBrandPanel({
-  title = "SiTA",
-  subtitle = "Sistem Bimbingan Tugas Akhir",
-}: AuthBrandPanelProps) {
+export function AuthBrandPanel() {
   return (
-    <div className="relative flex flex-col justify-between overflow-hidden bg-gradient-hero p-8 text-white lg:p-12">
-      <div className="pattern-dots absolute inset-0 opacity-30" />
+    <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-auth p-10 text-white lg:flex lg:w-[40%]">
+      <div className="auth-deco-circle -top-20 -left-20 size-72" />
+      <div className="auth-deco-circle top-1/3 -right-16 size-56" />
+      <div className="auth-deco-circle bottom-10 left-1/4 size-40" />
+
       <div className="relative">
-        <Link href="/" className="inline-flex items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <GraduationCap className="size-7" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold tracking-tight">{title}</p>
-            <p className="text-sm text-white/80">{subtitle}</p>
+        <Link href="/" className="inline-flex">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/logo.png"
+              alt="SiTA Logo"
+              width={80}
+              height={80}
+              className="object-contain brightness-0 invert"
+            />
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-white">SiTA</h1>
+              <p className="mt-1 text-sm text-blue-200">
+                Sistem Bimbingan Tugas Akhir
+              </p>
+            </div>
           </div>
         </Link>
       </div>
 
-      <div className="relative mt-12 space-y-8">
+      <div className="relative space-y-8 py-8">
         <div>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-            <Brain className="size-3.5" />
-            Platform Modern untuk Mahasiswa
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+            <Sparkles className="size-3.5" />
+            Platform Profesional
           </div>
-          <h2 className="text-3xl font-bold leading-tight lg:text-4xl">
-            Bimbingan skripsi lebih{" "}
-            <span className="text-cyan-200">terorganisir</span> & efisien
+          <h2 className="text-3xl font-bold leading-tight">
+            Bimbingan skripsi lebih terorganisir
           </h2>
-          <p className="mt-4 max-w-md text-white/80">
-            Kelola pengajuan, upload dokumen bab, dan pantau progres bimbingan
-            dalam satu platform yang dirancang untuk universitas.
+          <p className="mt-3 text-white/80">
+            Dirancang untuk mahasiswa, dosen pembimbing, dan administrator
+            universitas.
           </p>
         </div>
-
         <ul className="space-y-4">
-          {features.map((feature) => (
-            <li key={feature.text} className="flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
-                <feature.icon className="size-4" />
+          {features.map((text) => (
+            <li key={text} className="flex items-center gap-3 text-sm">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <Check className="size-3.5" />
               </span>
-              <span className="text-sm font-medium">{feature.text}</span>
+              {text}
             </li>
           ))}
         </ul>
       </div>
 
-      <p className="relative mt-8 text-xs text-white/50">
+      <p className="relative text-xs text-white/50">
         © {new Date().getFullYear()} SiTA — Universitas
       </p>
     </div>

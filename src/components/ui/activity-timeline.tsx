@@ -33,11 +33,11 @@ export function ActivityTimeline({
         <li key={item.id} className="relative flex gap-4 pb-8 last:pb-0">
           {index < items.length - 1 ? (
             <span
-              className="absolute left-[11px] top-6 h-[calc(100%-12px)] w-0.5 bg-gradient-to-b from-indigo-200 to-violet-100"
+              className="absolute left-[11px] top-6 h-[calc(100%-12px)] w-0.5 bg-[#2C5EAD]/20"
               aria-hidden
             />
           ) : null}
-          <span className="relative z-10 mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 ring-4 ring-white">
+          <span className="relative z-10 mt-1 flex size-6 shrink-0 items-center justify-center rounded-full bg-[#2C5EAD] ring-4 ring-white">
             <span className="size-2 rounded-full bg-white" />
           </span>
           <div className="min-w-0 flex-1 rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">

@@ -97,7 +97,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card className="card-elevated border-0 shadow-xl ring-0">
+    <Card className="rounded-2xl border border-gray-100 shadow-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold tracking-tight">Daftar Mahasiswa</CardTitle>
         <CardDescription>
@@ -201,7 +201,7 @@ export default function RegisterPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 border-0 bg-transparent">
-          <Button type="submit" className="btn-gradient h-11 w-full" disabled={isLoading}>
+          <Button type="submit" className="h-11 w-full" disabled={isLoading}>
             {isLoading ? "Mendaftar..." : "Daftar"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">

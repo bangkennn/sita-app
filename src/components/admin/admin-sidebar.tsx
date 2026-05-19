@@ -6,17 +6,16 @@ import {
   Users,
 } from "lucide-react"
 
-import { DarkSidebar } from "@/components/layout/dark-sidebar"
+import {
+  AppSidebar,
+  type SidebarNavItem,
+} from "@/components/layout/app-sidebar"
 
-const navItems = [
+const navItems: SidebarNavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/dosen", label: "Kelola Dosen", icon: Users },
-  {
-    href: "/admin/monitoring",
-    label: "Monitoring",
-    icon: GraduationCap,
-  },
-] as const
+  { href: "/admin/monitoring", label: "Monitoring", icon: GraduationCap },
+]
 
 interface AdminSidebarProps {
   adminName: string
@@ -30,8 +29,9 @@ export function AdminSidebar({
   className,
 }: AdminSidebarProps) {
   return (
-    <DarkSidebar
-      navItems={[...navItems]}
+    <AppSidebar
+      navItems={navItems}
+      navSectionLabel="Administrasi"
       userName={adminName}
       userMeta="Administrator"
       portalLabel="Panel Admin"

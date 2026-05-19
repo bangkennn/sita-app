@@ -1,22 +1,15 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { TableSkeleton } from "@/components/admin/table-skeleton"
+import { TableSkeleton } from "@/components/ui/skeletons"
 
-export default function MonitoringLoading() {
+const sk = "animate-pulse bg-gray-200 rounded-xl"
+
+export default function AdminMonitoringLoading() {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-56" />
-        <Skeleton className="h-4 w-72" />
+    <div className="space-y-6 p-6">
+      <Skeleton className={`${sk} h-8 w-48`} />
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <TableSkeleton rows={8} cols={6} />
       </div>
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-        </CardHeader>
-        <CardContent>
-          <TableSkeleton columns={7} rows={8} />
-        </CardContent>
-      </Card>
     </div>
   )
 }

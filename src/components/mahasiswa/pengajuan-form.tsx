@@ -180,23 +180,23 @@ export function PengajuanForm() {
                 <div
                   className={`flex size-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
                     done
-                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md"
+                      ? "bg-[#2C5EAD] text-white shadow-sm"
                       : active
-                        ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md ring-4 ring-indigo-100"
-                        : "border-2 border-slate-200 bg-slate-100 text-slate-400"
+                        ? "animate-step-pulse bg-[#2C5EAD] text-white ring-4 ring-[#2C5EAD]/20"
+                        : "border-2 border-gray-200 bg-gray-100 text-gray-400"
                   }`}
                 >
                   {done ? "✓" : s}
                 </div>
                 <span
-                  className={`hidden text-xs sm:block ${active ? "font-semibold text-indigo-600" : "text-slate-500"}`}
+                  className={`hidden text-xs sm:block ${active ? "font-semibold text-[#2C5EAD]" : "text-gray-500"}`}
                 >
                   {s === 1 ? "Upload SK" : s === 2 ? "Verifikasi" : "Kirim"}
                 </span>
               </div>
               {i < 2 ? (
                 <div
-                  className={`mx-2 h-0.5 w-8 sm:w-16 ${done ? "bg-emerald-400" : "bg-slate-200"}`}
+                  className={`mx-2 h-0.5 w-8 sm:w-16 ${done ? "bg-[#2C5EAD]" : "bg-gray-200"}`}
                 />
               ) : null}
             </div>
@@ -214,8 +214,8 @@ export function PengajuanForm() {
               {...getRootProps()}
               className={`flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-all ${
                 isDragActive
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/50"
+                  ? "border-[#2C5EAD] bg-[#EEF3FB]"
+                  : "border-gray-200 hover:border-[#2C5EAD] hover:bg-[#EEF3FB]/50"
               }`}
             >
               <input {...getInputProps()} />

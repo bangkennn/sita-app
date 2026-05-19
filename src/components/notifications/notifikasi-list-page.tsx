@@ -110,7 +110,7 @@ export function NotifikasiListPage({
               className={cn(
                 "cursor-pointer transition-colors hover:bg-muted/50",
                 !item.isRead &&
-                  "border-l-4 border-l-primary bg-primary/5"
+                  "border-l-4 border-l-[#2C5EAD] bg-[#EEF3FB]"
               )}
               onClick={() => {
                 if (!item.isRead) void handleMarkAsRead(item.id)

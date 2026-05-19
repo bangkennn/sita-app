@@ -1,34 +1,21 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { TableSkeleton } from "@/components/admin/table-skeleton"
+import {
+  StatCardSkeleton,
+  TableSkeleton,
+  WelcomeBannerSkeleton,
+} from "@/components/ui/skeletons"
 
-export default function DashboardLoading() {
+const sk = "animate-pulse bg-gray-200 rounded-xl"
+
+export default function AdminDashboardLoading() {
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-72" />
+    <div className="space-y-6 p-6">
+      <WelcomeBannerSkeleton />
+      <StatCardSkeleton />
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <Skeleton className={`${sk} mb-4 h-6 w-48`} />
+        <TableSkeleton rows={5} cols={5} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <Skeleton className="h-4 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-9 w-16" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40" />
-        </CardHeader>
-        <CardContent>
-          <TableSkeleton columns={6} rows={5} />
-        </CardContent>
-      </Card>
     </div>
   )
 }

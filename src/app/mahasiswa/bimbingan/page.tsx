@@ -21,7 +21,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -374,17 +373,18 @@ export default function MahasiswaBimbinganPage() {
                         }
                       }}
                     >
-                      <DialogTrigger>
-                        <Button
-                          className="w-full"
-                          size="sm"
-                          onClick={() => setSelectedBab(babNum)}
-                          type="button"
-                        >
-                          <Upload className="mr-2 size-4" />
-                          Upload Dokumen
-                        </Button>
-                      </DialogTrigger>
+                      <Button
+                        className="w-full"
+                        size="sm"
+                        type="button"
+                        onClick={() => {
+                          setSelectedBab(babNum)
+                          setUploadModalOpen(true)
+                        }}
+                      >
+                        <Upload className="mr-2 size-4" />
+                        Upload Dokumen
+                      </Button>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Upload Bab {babNum}</DialogTitle>

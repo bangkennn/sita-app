@@ -20,28 +20,24 @@ export function ProgressTracker({ currentStep }: ProgressTrackerProps) {
               <div className="flex flex-col items-center gap-2">
                 <div
                   className={cn(
-                    "flex size-10 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-300",
+                    "flex size-10 items-center justify-center rounded-full text-xs font-semibold transition-all",
                     isCompleted
-                      ? "border-emerald-500 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/30"
+                      ? "bg-[#2C5EAD] text-white"
                       : isCurrent
-                        ? "border-indigo-500 bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md shadow-indigo-500/30"
-                        : "border-slate-200 bg-slate-100 text-slate-400"
+                        ? "animate-step-pulse bg-[#2C5EAD] text-white ring-4 ring-[#2C5EAD]/20"
+                        : "bg-gray-200 text-gray-500"
                   )}
                 >
-                  {isCompleted ? (
-                    <Check className="size-4" />
-                  ) : (
-                    <span>{index + 1}</span>
-                  )}
+                  {isCompleted ? <Check className="size-4" /> : index + 1}
                 </div>
                 <span
                   className={cn(
                     "max-w-[80px] text-center text-xs",
                     isCurrent
-                      ? "font-semibold text-indigo-600"
+                      ? "font-semibold text-[#2C5EAD]"
                       : isCompleted
-                        ? "font-medium text-emerald-600"
-                        : "text-slate-400"
+                        ? "font-medium text-gray-700"
+                        : "text-gray-400"
                   )}
                 >
                   {step.label}
@@ -50,10 +46,8 @@ export function ProgressTracker({ currentStep }: ProgressTrackerProps) {
               {index < PROGRESS_STEPS.length - 1 ? (
                 <div
                   className={cn(
-                    "mx-1 h-1 flex-1 rounded-full",
-                    index < currentStep
-                      ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                      : "bg-slate-200"
+                    "mx-1 h-0.5 flex-1 rounded-full",
+                    index < currentStep ? "bg-[#2C5EAD]" : "bg-gray-200"
                   )}
                 />
               ) : null}

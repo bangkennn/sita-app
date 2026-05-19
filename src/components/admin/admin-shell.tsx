@@ -3,14 +3,13 @@
 import {
   GraduationCap,
   LayoutDashboard,
-  Menu,
   Users,
 } from "lucide-react"
 import { useState } from "react"
 
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { AppHeader } from "@/components/layout/app-header"
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -18,7 +17,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-
 interface AdminShellProps {
   adminName: string
   children: React.ReactNode
@@ -28,40 +26,37 @@ export function AdminShell({ adminName, children }: AdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-full bg-slate-50">
+    <div className="flex min-h-screen bg-[#F5F7FA]">
       <div className="hidden lg:flex lg:shrink-0">
         <AdminSidebar adminName={adminName} className="sticky top-0 h-screen" />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 lg:hidden">
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger render={<Button variant="outline" size="icon-sm" />}>
-              <Menu className="size-4" />
-              <span className="sr-only">Buka menu</span>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Menu navigasi</SheetTitle>
-              </SheetHeader>
-              <AdminSidebar
-                adminName={adminName}
-                onNavigate={() => setMobileOpen(false)}
-                className="h-full w-full border-0"
-              />
-            </SheetContent>
-          </Sheet>
-          <div>
-            <p className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-sm font-bold text-transparent">
-              SiTA Admin
-            </p>
-            <p className="text-xs text-slate-500">{adminName}</p>
-          </div>
-        </header>
+        <AppHeader
+          userName={adminName}
+          userMeta="Administrator"
+          showMenuButton
+          onMenuClick={() => setMobileOpen(true)}
+        />
 
-        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-8 lg:p-8">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger className="sr-only">Menu</SheetTrigger>
+          <SheetContent side="left" className="w-[260px] p-0">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <AdminSidebar
+              adminName={adminName}
+              onNavigate={() => setMobileOpen(false)}
+              className="h-full w-full border-0"
+            />
+          </SheetContent>
+        </Sheet>
+
+        <main className="flex-1 space-y-6 p-4 pb-24 lg:p-6 lg:pb-6">
           {children}
         </main>
+
         <MobileBottomNav
           items={[
             { href: "/admin/dashboard", label: "Home", icon: LayoutDashboard },

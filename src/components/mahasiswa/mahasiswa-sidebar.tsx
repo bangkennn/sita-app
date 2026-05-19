@@ -7,20 +7,14 @@ import {
   LayoutDashboard,
 } from "lucide-react"
 
-import { DarkSidebar } from "@/components/layout/dark-sidebar"
-import { NotificationBell } from "@/components/notifications/NotificationBell"
-
-const navItems = [
-  { href: "/mahasiswa/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/mahasiswa/pengajuan", label: "Pengajuan", icon: FileText },
-  { href: "/mahasiswa/bimbingan", label: "Bimbingan", icon: BookOpen },
-  { href: "/mahasiswa/notifikasi", label: "Notifikasi", icon: Bell },
-] as const
+import {
+  AppSidebar,
+  type SidebarNavItem,
+} from "@/components/layout/app-sidebar"
 
 interface MahasiswaSidebarProps {
   profile: { nama: string; nim: string; prodi: string }
   unreadCount: number
-  viewAllHref: string
   onNavigate?: () => void
   className?: string
 }
@@ -28,25 +22,28 @@ interface MahasiswaSidebarProps {
 export function MahasiswaSidebar({
   profile,
   unreadCount,
-  viewAllHref,
   onNavigate,
   className,
 }: MahasiswaSidebarProps) {
-  const items = navItems.map((item) =>
-    item.href === "/mahasiswa/notifikasi"
-      ? { ...item, badge: unreadCount }
-      : item
-  )
+  const navItems: SidebarNavItem[] = [
+    { href: "/mahasiswa/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/mahasiswa/pengajuan", label: "Pengajuan", icon: FileText },
+    { href: "/mahasiswa/bimbingan", label: "Bimbingan", icon: BookOpen },
+    {
+      href: "/mahasiswa/notifikasi",
+      label: "Notifikasi",
+      icon: Bell,
+      badge: unreadCount,
+    },
+  ]
 
   return (
-    <DarkSidebar
-      navItems={items}
+    <AppSidebar
+      navItems={navItems}
+      navSectionLabel="Bimbingan"
       userName={profile.nama}
       userMeta={`${profile.nim} · ${profile.prodi}`}
       portalLabel="Portal Mahasiswa"
-      headerExtra={
-        <NotificationBell viewAllHref={viewAllHref} className="hidden lg:block" />
-      }
       onNavigate={onNavigate}
       className={className}
     />

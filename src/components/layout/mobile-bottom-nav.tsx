@@ -20,7 +20,7 @@ export function MobileBottomNav({ items }: MobileBottomNavProps) {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
       <ul className="flex items-stretch justify-around">
         {items.map((item) => {
           const isActive =
@@ -32,20 +32,11 @@ export function MobileBottomNav({ items }: MobileBottomNavProps) {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-2 py-2.5 text-[10px] font-medium transition-colors",
-                  isActive
-                    ? "text-indigo-600"
-                    : "text-slate-500 hover:text-indigo-500"
+                  "flex flex-col items-center gap-0.5 px-2 py-2.5 text-[10px] font-medium",
+                  isActive ? "text-[#2C5EAD]" : "text-gray-400"
                 )}
               >
-                <span
-                  className={cn(
-                    "flex size-8 items-center justify-center rounded-xl transition-colors",
-                    isActive && "bg-indigo-100"
-                  )}
-                >
-                  <Icon className="size-4" />
-                </span>
+                <Icon className="size-5" strokeWidth={isActive ? 2.5 : 2} />
                 <span className="truncate">{item.label}</span>
               </Link>
             </li>

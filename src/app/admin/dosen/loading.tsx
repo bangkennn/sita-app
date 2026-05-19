@@ -1,25 +1,18 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { TableSkeleton } from "@/components/admin/table-skeleton"
+import { TableSkeleton } from "@/components/ui/skeletons"
 
-export default function DosenLoading() {
+const sk = "animate-pulse bg-gray-200 rounded-xl"
+
+export default function AdminDosenLoading() {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-        <Skeleton className="h-8 w-32" />
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <Skeleton className={`${sk} h-8 w-48`} />
+        <Skeleton className={`${sk} h-10 w-32`} />
       </div>
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-32" />
-        </CardHeader>
-        <CardContent>
-          <TableSkeleton columns={8} rows={6} />
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <TableSkeleton rows={6} cols={6} />
+      </div>
     </div>
   )
 }

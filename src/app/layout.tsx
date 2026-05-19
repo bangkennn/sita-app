@@ -7,12 +7,13 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: {
-    default: "SiTA — Sistem Bimbingan Tugas Akhir",
-    template: "%s | SiTA",
+  title: "SiTA - Sistem Bimbingan Tugas Akhir",
+  description: "Platform bimbingan tugas akhir mahasiswa",
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+    shortcut: '/icon.png',
   },
-  description:
-    "Platform bimbingan skripsi modern untuk mahasiswa, dosen, dan administrator universitas.",
 }
 
 export default function RootLayout({

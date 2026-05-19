@@ -1,16 +1,15 @@
 "use client"
 
-import { Bell, LayoutDashboard, Menu, Users } from "lucide-react"
+import { Bell, LayoutDashboard, Users } from "lucide-react"
 import { useState } from "react"
 
 import { DosenSidebar } from "@/components/dosen/dosen-sidebar"
+import { AppHeader } from "@/components/layout/app-header"
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
-import { NotificationBell } from "@/components/notifications/NotificationBell"
 import {
   NotificationsProvider,
   useNotifications,
 } from "@/components/notifications/notifications-provider"
-import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -30,50 +29,43 @@ function DosenShellInner({ profile, children }: DosenShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-full bg-slate-50">
+    <div className="flex min-h-screen bg-[#F5F7FA]">
       <div className="hidden lg:flex lg:shrink-0">
         <DosenSidebar
           profile={profile}
           unreadCount={unreadCount}
-          viewAllHref="/dosen/notifikasi"
           className="sticky top-0 h-screen"
         />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-3 border-b bg-background px-4 lg:hidden">
-          <div className="flex items-center gap-3">
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger
-                render={<Button variant="outline" size="icon-sm" />}
-              >
-                <Menu className="size-4" />
-                <span className="sr-only">Buka menu</span>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Menu navigasi</SheetTitle>
-                </SheetHeader>
-                <DosenSidebar
-                  profile={profile}
-                  unreadCount={unreadCount}
-                  viewAllHref="/dosen/notifikasi"
-                  onNavigate={() => setMobileOpen(false)}
-                  className="h-full w-full border-0"
-                />
-              </SheetContent>
-            </Sheet>
-            <div>
-              <p className="text-sm font-semibold">SiTA</p>
-              <p className="text-xs text-muted-foreground">{profile.nama}</p>
-            </div>
-          </div>
-          <NotificationBell viewAllHref="/dosen/notifikasi" />
-        </header>
+        <AppHeader
+          userName={profile.nama}
+          userMeta={profile.nip}
+          viewAllHref="/dosen/notifikasi"
+          showMenuButton
+          onMenuClick={() => setMobileOpen(true)}
+        />
 
-        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-8 lg:p-8">
+        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger className="sr-only">Menu</SheetTrigger>
+          <SheetContent side="left" className="w-[260px] p-0">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <DosenSidebar
+              profile={profile}
+              unreadCount={unreadCount}
+              onNavigate={() => setMobileOpen(false)}
+              className="h-full w-full border-0"
+            />
+          </SheetContent>
+        </Sheet>
+
+        <main className="flex-1 space-y-6 p-4 pb-24 lg:p-6 lg:pb-6">
           {children}
         </main>
+
         <MobileBottomNav
           items={[
             { href: "/dosen/dashboard", label: "Home", icon: LayoutDashboard },
