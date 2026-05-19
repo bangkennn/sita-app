@@ -4,7 +4,6 @@ import { Toaster } from "sonner"
 import { MahasiswaShell } from "@/components/mahasiswa/mahasiswa-shell"
 import { auth } from "@/auth"
 import { getDashboardPath } from "@/lib/dashboard"
-import { getUnreadNotifikasiCount } from "@/lib/mahasiswa/queries"
 import type { MahasiswaProfile } from "@/lib/mahasiswa/types"
 import { getMahasiswaByUserId } from "@/lib/mahasiswa/auth"
 
@@ -37,11 +36,9 @@ export default async function MahasiswaLayout({
     angkatan: mahasiswa.angkatan,
   }
 
-  const unreadCount = await getUnreadNotifikasiCount(session.user.id)
-
   return (
     <>
-      <MahasiswaShell profile={profile} unreadCount={unreadCount}>
+      <MahasiswaShell profile={profile}>
         {children}
       </MahasiswaShell>
       <Toaster richColors position="top-right" />

@@ -1,11 +1,14 @@
 "use client"
 
-import { Bell, Menu } from "lucide-react"
-import Link from "next/link"
+import { Menu } from "lucide-react"
 import { useState } from "react"
 
 import { MahasiswaSidebar } from "@/components/mahasiswa/mahasiswa-sidebar"
-import { Badge } from "@/components/ui/badge"
+import { NotificationBell } from "@/components/notifications/NotificationBell"
+import {
+  NotificationsProvider,
+  useNotifications,
+} from "@/components/notifications/notifications-provider"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -18,15 +21,11 @@ import type { MahasiswaProfile } from "@/lib/mahasiswa/types"
 
 interface MahasiswaShellProps {
   profile: MahasiswaProfile
-  unreadCount: number
   children: React.ReactNode
 }
 
-export function MahasiswaShell({
-  profile,
-  unreadCount,
-  children,
-}: MahasiswaShellProps) {
+function MahasiswaShellInner({ profile, children }: MahasiswaShellProps) {
+  const { unreadCount } = useNotifications()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -35,6 +34,7 @@ export function MahasiswaShell({
         <MahasiswaSidebar
           profile={profile}
           unreadCount={unreadCount}
+          viewAllHref="/mahasiswa/notifikasi"
           className="sticky top-0 h-screen"
         />
       </div>
@@ -56,6 +56,7 @@ export function MahasiswaShell({
                 <MahasiswaSidebar
                   profile={profile}
                   unreadCount={unreadCount}
+                  viewAllHref="/mahasiswa/notifikasi"
                   onNavigate={() => setMobileOpen(false)}
                   className="h-full w-full border-0"
                 />
@@ -66,20 +67,19 @@ export function MahasiswaShell({
               <p className="text-xs text-muted-foreground">{profile.nama}</p>
             </div>
           </div>
-          <Link href="/mahasiswa/notifikasi">
-            <Button variant="outline" size="icon-sm" className="relative">
-              <Bell className="size-4" />
-              {unreadCount > 0 ? (
-                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 justify-center px-1 text-[10px]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              ) : null}
-            </Button>
-          </Link>
+          <NotificationBell viewAllHref="/mahasiswa/notifikasi" />
         </header>
 
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </div>
     </div>
+  )
+}
+
+export function MahasiswaShell({ profile, children }: MahasiswaShellProps) {
+  return (
+    <NotificationsProvider>
+      <MahasiswaShellInner profile={profile}>{children}</MahasiswaShellInner>
+    </NotificationsProvider>
   )
 }

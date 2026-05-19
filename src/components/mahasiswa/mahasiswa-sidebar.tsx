@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
+import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ const navItems = [
 interface MahasiswaSidebarProps {
   profile: MahasiswaProfile
   unreadCount: number
+  viewAllHref: string
   onNavigate?: () => void
   className?: string
 }
@@ -37,6 +39,7 @@ interface MahasiswaSidebarProps {
 export function MahasiswaSidebar({
   profile,
   unreadCount,
+  viewAllHref,
   onNavigate,
   className,
 }: MahasiswaSidebarProps) {
@@ -49,14 +52,17 @@ export function MahasiswaSidebar({
         className
       )}
     >
-      <div className="flex items-center gap-2 px-4 py-5">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <GraduationCap className="size-5" />
+      <div className="flex items-center justify-between gap-2 px-4 py-5">
+        <div className="flex items-center gap-2">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <GraduationCap className="size-5" />
+          </div>
+          <div>
+            <p className="font-semibold leading-none">SiTA</p>
+            <p className="text-xs text-muted-foreground">Portal Mahasiswa</p>
+          </div>
         </div>
-        <div>
-          <p className="font-semibold leading-none">SiTA</p>
-          <p className="text-xs text-muted-foreground">Portal Mahasiswa</p>
-        </div>
+        <NotificationBell viewAllHref={viewAllHref} className="hidden lg:block" />
       </div>
 
       <Separator />

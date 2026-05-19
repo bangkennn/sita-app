@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
 
+import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -13,6 +14,7 @@ import type { DosenProfile } from "@/lib/dosen/types"
 interface DosenSidebarProps {
   profile: DosenProfile
   unreadCount: number
+  viewAllHref: string
   className?: string
   onNavigate?: () => void
 }
@@ -38,6 +40,7 @@ const navItems = [
 export function DosenSidebar({
   profile,
   unreadCount,
+  viewAllHref,
   className,
   onNavigate,
 }: DosenSidebarProps) {
@@ -46,8 +49,9 @@ export function DosenSidebar({
   return (
     <div className={className}>
       <div className="flex h-full flex-col">
-        <div className="flex h-14 items-center border-b px-4">
+        <div className="flex h-14 items-center justify-between border-b px-4">
           <p className="text-lg font-semibold">SiTA</p>
+          <NotificationBell viewAllHref={viewAllHref} className="hidden lg:block" />
         </div>
 
         <div className="flex-1 overflow-y-auto py-4">

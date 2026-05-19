@@ -1,12 +1,14 @@
 "use client"
 
-import { Bell, LogOut, Menu } from "lucide-react"
-import Link from "next/link"
+import { Menu } from "lucide-react"
 import { useState } from "react"
-import { signOut } from "next-auth/react"
 
 import { DosenSidebar } from "@/components/dosen/dosen-sidebar"
-import { Badge } from "@/components/ui/badge"
+import { NotificationBell } from "@/components/notifications/NotificationBell"
+import {
+  NotificationsProvider,
+  useNotifications,
+} from "@/components/notifications/notifications-provider"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -19,15 +21,11 @@ import type { DosenProfile } from "@/lib/dosen/types"
 
 interface DosenShellProps {
   profile: DosenProfile
-  unreadCount: number
   children: React.ReactNode
 }
 
-export function DosenShell({
-  profile,
-  unreadCount,
-  children,
-}: DosenShellProps) {
+function DosenShellInner({ profile, children }: DosenShellProps) {
+  const { unreadCount } = useNotifications()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -36,6 +34,7 @@ export function DosenShell({
         <DosenSidebar
           profile={profile}
           unreadCount={unreadCount}
+          viewAllHref="/dosen/notifikasi"
           className="sticky top-0 h-screen"
         />
       </div>
@@ -57,6 +56,7 @@ export function DosenShell({
                 <DosenSidebar
                   profile={profile}
                   unreadCount={unreadCount}
+                  viewAllHref="/dosen/notifikasi"
                   onNavigate={() => setMobileOpen(false)}
                   className="h-full w-full border-0"
                 />
@@ -67,20 +67,19 @@ export function DosenShell({
               <p className="text-xs text-muted-foreground">{profile.nama}</p>
             </div>
           </div>
-          <Link href="/dosen/notifikasi">
-            <Button variant="outline" size="icon-sm" className="relative">
-              <Bell className="size-4" />
-              {unreadCount > 0 ? (
-                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 justify-center px-1 text-[10px]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </Badge>
-              ) : null}
-            </Button>
-          </Link>
+          <NotificationBell viewAllHref="/dosen/notifikasi" />
         </header>
 
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </div>
     </div>
+  )
+}
+
+export function DosenShell({ profile, children }: DosenShellProps) {
+  return (
+    <NotificationsProvider>
+      <DosenShellInner profile={profile}>{children}</DosenShellInner>
+    </NotificationsProvider>
   )
 }

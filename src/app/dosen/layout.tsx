@@ -4,7 +4,6 @@ import { Toaster } from "sonner"
 import { DosenShell } from "@/components/dosen/dosen-shell"
 import { auth } from "@/auth"
 import { getDashboardPath } from "@/lib/dashboard"
-import { getUnreadNotifikasiCount } from "@/lib/dosen/queries"
 import type { DosenProfile } from "@/lib/dosen/types"
 import { getDosenByUserId } from "@/lib/dosen/auth"
 
@@ -36,11 +35,9 @@ export default async function DosenLayout({
     prodi: dosen.prodi,
   }
 
-  const unreadCount = await getUnreadNotifikasiCount(session.user.id)
-
   return (
     <>
-      <DosenShell profile={profile} unreadCount={unreadCount}>
+      <DosenShell profile={profile}>
         {children}
       </DosenShell>
       <Toaster richColors position="top-right" />
