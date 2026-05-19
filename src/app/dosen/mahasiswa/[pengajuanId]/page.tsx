@@ -2,15 +2,17 @@
 
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import { Download, Paperclip, Send } from "lucide-react"
+import { Check, Download, Edit3, Paperclip, Send } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { DosenSentFilesList } from "@/components/dosen/dosen-sent-files-list"
 import { KirimBerkasModal } from "@/components/dosen/kirim-berkas-modal"
-import { FASE_LABELS, STATUS_BAB_LABELS } from "@/lib/admin/labels"
+import { FASE_LABELS } from "@/lib/admin/labels"
+import { FaseBadge, StatusBabBadge } from "@/components/ui/status-badge"
+import { BAB_BORDER_STYLES } from "@/lib/ui/status-badges"
+import { cn } from "@/lib/utils"
 import type { DokumenItem, PengajuanWithRelations } from "@/lib/dosen/types"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -239,7 +241,7 @@ export default function DosenMahasiswaDetailPage({
               </p>
               <p className="text-sm font-medium mt-2">{pengajuan.judulSkripsi}</p>
             </div>
-            <Badge variant="outline">{FASE_LABELS[pengajuan.fase]}</Badge>
+            <FaseBadge fase={pengajuan.fase} />
           </div>
         </CardHeader>
       </Card>
@@ -254,24 +256,17 @@ export default function DosenMahasiswaDetailPage({
         </div>
         <div className="space-y-4">
           {getDokumenForFase().map((dokumen) => (
-            <Card key={dokumen.id}>
+            <Card
+              key={dokumen.id}
+              className={cn("border-l-4", BAB_BORDER_STYLES[dokumen.status])}
+            >
               <CardHeader className="pb-3">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <CardTitle className="text-base">Bab {dokumen.nomorBab}</CardTitle>
                     <p className="text-sm text-muted-foreground">{dokumen.judulBab}</p>
                   </div>
-                  <Badge
-                    variant={
-                      dokumen.status === "ACC"
-                        ? "default"
-                        : dokumen.status === "PERLU_REVISI"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
-                    {STATUS_BAB_LABELS[dokumen.status]}
-                  </Badge>
+                  <StatusBabBadge status={dokumen.status} />
                 </div>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Versi {dokumen.versi}</span>
@@ -305,12 +300,17 @@ export default function DosenMahasiswaDetailPage({
                 </a>
 
                 {dokumen.komentar.length > 0 && (
-                  <div className="space-y-2 rounded-lg bg-muted p-3">
-                    <p className="text-sm font-medium">Komentar Sebelumnya:</p>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-slate-700">
+                      Thread Komentar
+                    </p>
                     {dokumen.komentar.map((k) => (
-                      <p key={k.id} className="text-sm text-muted-foreground">
+                      <div
+                        key={k.id}
+                        className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-gradient-to-br from-indigo-500 to-violet-500 px-4 py-2 text-sm text-white shadow-sm"
+                      >
                         {k.isiKomentar}
-                      </p>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -345,17 +345,19 @@ export default function DosenMahasiswaDetailPage({
                     </Button>
                     <Button
                       size="sm"
-                      variant="default"
+                      variant="success"
                       onClick={() => handleReview(dokumen.id, "ACC")}
                     >
-                      ACC Bab Ini
+                      <Check className="mr-1 size-4" />
+                      ACC
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
+                      className="bg-orange-500 text-white hover:bg-orange-600"
                       onClick={() => handleReview(dokumen.id, "PERLU_REVISI")}
                     >
-                      Perlu Revisi
+                      <Edit3 className="mr-1 size-4" />
+                      Revisi
                     </Button>
                   </div>
                 </div>
@@ -380,9 +382,12 @@ export default function DosenMahasiswaDetailPage({
       </div>
 
       {canShowQrSection() && (
-        <Card>
+        <Card className="rounded-xl border-2 border-transparent bg-gradient-to-br from-indigo-50 to-violet-50 p-[2px] shadow-lg">
+          <div className="rounded-[10px] bg-white">
           <CardHeader>
-            <CardTitle>Kirim QR Code Seminar Proposal</CardTitle>
+            <CardTitle className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              Kirim QR Code Seminar Proposal
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {pengajuan.qrTerkirim ? (
@@ -401,6 +406,7 @@ export default function DosenMahasiswaDetailPage({
               </Button>
             )}
           </CardContent>
+          </div>
         </Card>
       )}
 

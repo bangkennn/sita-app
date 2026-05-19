@@ -1,6 +1,20 @@
+import {
+  CheckCircle2,
+  ClipboardList,
+  FileSearch,
+  Users,
+} from "lucide-react"
+import type { Metadata } from "next"
+
+import { StatsCard } from "@/components/admin/stats-card"
+import { WelcomeBanner } from "@/components/ui/welcome-banner"
 import { auth } from "@/auth"
 import { getDosenByUserId } from "@/lib/dosen/auth"
 import { prisma } from "@/lib/prisma"
+
+export const metadata: Metadata = {
+  title: "Dashboard Dosen",
+}
 
 export default async function DosenDashboardPage() {
   const session = await auth()
@@ -42,64 +56,46 @@ export default async function DosenDashboardPage() {
       },
     })
 
-    return {
-      mahasiswaAktif,
-      dokumenMenunggu,
-      permohonanBaru,
-      totalSelesai,
-    }
+    return { mahasiswaAktif, dokumenMenunggu, permohonanBaru, totalSelesai }
   })
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Selamat datang, {dosen.nama}
-        </p>
-      </div>
+      <WelcomeBanner
+        name={dosen.nama}
+        roleLabel="Dosen Pembimbing"
+        description={`${dosen.prodi} · NIP ${dosen.nip}`}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
+        <StatsCard
           title="Mahasiswa Aktif"
           value={stats.mahasiswaAktif}
+          icon={Users}
           description="Sedang bimbingan"
+          index={0}
         />
-        <StatCard
-          title="Dokumen Menunggu Review"
+        <StatsCard
+          title="Dokumen Review"
           value={stats.dokumenMenunggu}
+          icon={FileSearch}
           description="Perlu ditinjau"
+          index={1}
         />
-        <StatCard
+        <StatsCard
           title="Permohonan Baru"
           value={stats.permohonanBaru}
+          icon={ClipboardList}
           description="Menunggu persetujuan"
+          index={2}
         />
-        <StatCard
+        <StatsCard
           title="Total Selesai"
           value={stats.totalSelesai}
+          icon={CheckCircle2}
           description="Bimbingan selesai"
+          index={3}
         />
-      </div>
-    </div>
-  )
-}
-
-function StatCard({
-  title,
-  value,
-  description,
-}: {
-  title: string
-  value: number
-  description: string
-}) {
-  return (
-    <div className="rounded-lg border bg-card p-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <p className="text-3xl font-bold">{value}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </div>
   )

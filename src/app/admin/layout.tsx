@@ -1,9 +1,16 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 import { AdminShell } from "@/components/admin/admin-shell"
-import { Toaster } from "sonner"
 import { auth } from "@/auth"
 import { getDashboardPath } from "@/lib/dashboard"
+
+export const metadata: Metadata = {
+  title: {
+    default: "Panel Admin",
+    template: "%s | Admin SiTA",
+  },
+}
 
 export default async function AdminLayout({
   children,
@@ -23,7 +30,6 @@ export default async function AdminLayout({
   return (
     <>
       <AdminShell adminName={session.user.nama}>{children}</AdminShell>
-      <Toaster richColors position="top-right" />
     </>
   )
 }

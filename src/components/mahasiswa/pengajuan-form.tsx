@@ -170,15 +170,38 @@ export function PengajuanForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2">
-        {[1, 2, 3].map((s) => (
-          <Badge
-            key={s}
-            variant={step === s ? "default" : step > s ? "secondary" : "outline"}
-          >
-            Langkah {s}
-          </Badge>
-        ))}
+      <div className="flex items-center justify-center gap-0 sm:gap-2">
+        {[1, 2, 3].map((s, i) => {
+          const done = step > s
+          const active = step === s
+          return (
+            <div key={s} className="flex items-center">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`flex size-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                    done
+                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md"
+                      : active
+                        ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-md ring-4 ring-indigo-100"
+                        : "border-2 border-slate-200 bg-slate-100 text-slate-400"
+                  }`}
+                >
+                  {done ? "✓" : s}
+                </div>
+                <span
+                  className={`hidden text-xs sm:block ${active ? "font-semibold text-indigo-600" : "text-slate-500"}`}
+                >
+                  {s === 1 ? "Upload SK" : s === 2 ? "Verifikasi" : "Kirim"}
+                </span>
+              </div>
+              {i < 2 ? (
+                <div
+                  className={`mx-2 h-0.5 w-8 sm:w-16 ${done ? "bg-emerald-400" : "bg-slate-200"}`}
+                />
+              ) : null}
+            </div>
+          )
+        })}
       </div>
 
       {step === 1 ? (
@@ -189,10 +212,10 @@ export function PengajuanForm() {
           <CardContent className="space-y-4">
             <div
               {...getRootProps()}
-              className={`flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-colors ${
+              className={`flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-all ${
                 isDragActive
-                  ? "border-primary bg-primary/5"
-                  : "border-muted-foreground/30 hover:border-primary/50"
+                  ? "border-indigo-500 bg-indigo-50"
+                  : "border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/50"
               }`}
             >
               <input {...getInputProps()} />

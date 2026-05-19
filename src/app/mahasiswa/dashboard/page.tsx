@@ -2,14 +2,15 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import Link from "next/link"
 import { Bell, FileText, BookOpen } from "lucide-react"
+import type { Metadata } from "next"
 
 import { PengajuanStatusCard } from "@/components/mahasiswa/pengajuan-status-card"
 import { ProgressTracker } from "@/components/mahasiswa/progress-tracker"
-import { Badge } from "@/components/ui/badge"
+import { WelcomeBanner } from "@/components/ui/welcome-banner"
+import { StatusPengajuanBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { auth } from "@/auth"
-import { STATUS_LABELS } from "@/lib/admin/labels"
 import { getMahasiswaByUserId } from "@/lib/mahasiswa/auth"
 import { getProgressStepIndex } from "@/lib/mahasiswa/progress"
 import { formatPembimbingNames } from "@/lib/mahasiswa/format-pembimbing"
@@ -17,6 +18,10 @@ import {
   getPengajuanByMahasiswaId,
   getRecentNotifikasi,
 } from "@/lib/mahasiswa/queries"
+
+export const metadata: Metadata = {
+  title: "Dashboard Mahasiswa",
+}
 
 export default async function MahasiswaDashboardPage() {
   const session = await auth()
@@ -39,12 +44,11 @@ export default async function MahasiswaDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Selamat datang, {mahasiswa?.nama ?? "Mahasiswa"}
-        </p>
-      </div>
+      <WelcomeBanner
+        name={mahasiswa?.nama ?? "Mahasiswa"}
+        roleLabel="Mahasiswa"
+        description={`${mahasiswa?.nim ?? ""} · ${mahasiswa?.prodi ?? ""}`}
+      />
 
       {pengajuan ? (
         <Card>
@@ -53,17 +57,7 @@ export default async function MahasiswaDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                variant={
-                  pengajuan.status === "DITERIMA"
-                    ? "default"
-                    : pengajuan.status === "DITOLAK"
-                      ? "destructive"
-                      : "secondary"
-                }
-              >
-                {STATUS_LABELS[pengajuan.status]}
-              </Badge>
+              <StatusPengajuanBadge status={pengajuan.status} />
               <span className="text-sm text-muted-foreground">
                 Pembimbing:{" "}
                 {formatPembimbingNames(pengajuan.dosen, pengajuan.dosen2)}

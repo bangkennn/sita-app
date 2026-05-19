@@ -1,11 +1,18 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { Toaster } from "sonner"
 
 import { DosenShell } from "@/components/dosen/dosen-shell"
 import { auth } from "@/auth"
 import { getDashboardPath } from "@/lib/dashboard"
 import type { DosenProfile } from "@/lib/dosen/types"
 import { getDosenByUserId } from "@/lib/dosen/auth"
+
+export const metadata: Metadata = {
+  title: {
+    default: "Portal Dosen",
+    template: "%s | Dosen SiTA",
+  },
+}
 
 export default async function DosenLayout({
   children,
@@ -40,7 +47,6 @@ export default async function DosenLayout({
       <DosenShell profile={profile}>
         {children}
       </DosenShell>
-      <Toaster richColors position="top-right" />
     </>
   )
 }

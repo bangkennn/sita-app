@@ -75,14 +75,19 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
       <Button
         variant="outline"
         size="icon-sm"
-        className="relative"
+        className={cn(
+          "relative border-white/20 bg-white/10 text-white hover:bg-white/20",
+          !className?.includes("hidden") && "border-slate-200 bg-white text-slate-700"
+        )}
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((prev) => !prev)}
       >
-        <Bell className="size-4" />
+        <Bell
+          className={cn("size-4", unreadCount > 0 && "animate-bell-pulse")}
+        />
         {unreadCount > 0 ? (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-white">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         ) : null}
@@ -90,14 +95,14 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
       </Button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg">
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-xl">
           <div className="flex items-center justify-between px-4 py-3">
-            <p className="text-sm font-semibold">Notifikasi</p>
+            <p className="text-sm font-semibold text-slate-900">Notifikasi</p>
             {unreadCount > 0 ? (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto px-2 py-1 text-xs"
+                className="h-auto px-2 py-1 text-xs text-indigo-600"
                 onClick={() => void handleMarkAllRead()}
               >
                 Tandai semua dibaca
@@ -107,12 +112,12 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
           <Separator />
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+              <p className="px-4 py-6 text-center text-sm text-slate-500">
                 Memuat...
               </p>
             ) : items.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-                Belum ada notifikasi
+              <p className="px-4 py-8 text-center text-sm text-slate-500">
+                🔔 Semua sudah terbaca!
               </p>
             ) : (
               <ul>
@@ -121,13 +126,17 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
                     <button
                       type="button"
                       className={cn(
-                        "w-full px-4 py-3 text-left transition-colors hover:bg-muted/50",
-                        !item.isRead && "bg-primary/5"
+                        "w-full border-l-4 px-4 py-3 text-left transition-colors hover:bg-slate-50",
+                        !item.isRead
+                          ? "border-l-indigo-500 bg-indigo-50/80"
+                          : "border-l-transparent bg-white"
                       )}
                       onClick={() => void handleItemClick(item)}
                     >
-                      <p className="text-sm leading-snug">{item.pesan}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="text-sm leading-snug text-slate-800">
+                        {item.pesan}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
                         {relativeTime(item.createdAt)}
                       </p>
                     </button>
@@ -140,7 +149,7 @@ export function NotificationBell({ viewAllHref, className }: NotificationBellPro
           <div className="p-2">
             <Link
               href={viewAllHref}
-              className="block rounded-md px-3 py-2 text-center text-sm font-medium text-primary hover:bg-muted/50"
+              className="block rounded-lg px-3 py-2 text-center text-sm font-medium text-indigo-600 hover:bg-indigo-50"
               onClick={() => setOpen(false)}
             >
               Lihat semua

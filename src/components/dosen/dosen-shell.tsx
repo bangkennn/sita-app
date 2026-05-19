@@ -1,9 +1,10 @@
 "use client"
 
-import { Menu } from "lucide-react"
+import { Bell, LayoutDashboard, Menu, Users } from "lucide-react"
 import { useState } from "react"
 
 import { DosenSidebar } from "@/components/dosen/dosen-sidebar"
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import {
   NotificationsProvider,
@@ -29,7 +30,7 @@ function DosenShellInner({ profile, children }: DosenShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-full bg-muted/20">
+    <div className="flex min-h-full bg-slate-50">
       <div className="hidden lg:flex lg:shrink-0">
         <DosenSidebar
           profile={profile}
@@ -70,7 +71,16 @@ function DosenShellInner({ profile, children }: DosenShellProps) {
           <NotificationBell viewAllHref="/dosen/notifikasi" />
         </header>
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-8 lg:p-8">
+          {children}
+        </main>
+        <MobileBottomNav
+          items={[
+            { href: "/dosen/dashboard", label: "Home", icon: LayoutDashboard },
+            { href: "/dosen/mahasiswa", label: "Mhs", icon: Users },
+            { href: "/dosen/notifikasi", label: "Notif", icon: Bell },
+          ]}
+        />
       </div>
     </div>
   )

@@ -32,6 +32,33 @@ export default function RegisterPage() {
     event.preventDefault()
     setError("")
     setSuccess("")
+
+    if (!nama.trim()) {
+      setError("Nama lengkap wajib diisi.")
+      return
+    }
+    if (!nim.trim()) {
+      setError("NIM wajib diisi.")
+      return
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Email tidak valid.")
+      return
+    }
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter.")
+      return
+    }
+    if (!prodi.trim()) {
+      setError("Program studi wajib diisi.")
+      return
+    }
+    const angkatanNum = parseInt(angkatan, 10)
+    if (!angkatan || Number.isNaN(angkatanNum) || angkatanNum < 2000) {
+      setError("Angkatan tidak valid.")
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -70,9 +97,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card>
+    <Card className="card-elevated border-0 shadow-xl ring-0">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">Daftar</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">Daftar Mahasiswa</CardTitle>
         <CardDescription>
           Registrasi akun mahasiswa SiTA
         </CardDescription>
@@ -174,7 +201,7 @@ export default function RegisterPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 border-0 bg-transparent">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="btn-gradient h-11 w-full" disabled={isLoading}>
             {isLoading ? "Mendaftar..." : "Daftar"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">

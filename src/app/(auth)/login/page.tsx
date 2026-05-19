@@ -34,6 +34,20 @@ function LoginForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError("")
+
+    if (!email.trim()) {
+      setError("Email wajib diisi.")
+      return
+    }
+    if (!password) {
+      setError("Password wajib diisi.")
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Format email tidak valid.")
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -74,17 +88,19 @@ function LoginForm() {
   }
 
   return (
-    <Card>
+    <Card className="card-elevated border-0 shadow-xl ring-0">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">SiTA</CardTitle>
-        <CardDescription>Sistem Bimbingan Tugas Akhir</CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          Selamat Datang
+        </CardTitle>
+        <CardDescription>Masuk ke akun SiTA Anda</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error ? (
             <div
               role="alert"
-              className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"
             >
               {error}
             </div>
@@ -116,15 +132,19 @@ function LoginForm() {
             />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4 border-0 bg-transparent">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+        <CardFooter className="flex flex-col gap-4 border-0 bg-transparent pt-2">
+          <Button
+            type="submit"
+            className="btn-gradient h-11 w-full text-base"
+            disabled={isLoading}
+          >
             {isLoading ? "Memproses..." : "Masuk"}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-slate-500">
             Belum punya akun?{" "}
             <Link
               href="/register"
-              className="font-medium text-primary underline-offset-4 hover:underline"
+              className="font-medium text-indigo-600 underline-offset-4 hover:underline"
             >
               Daftar sebagai mahasiswa
             </Link>
@@ -137,14 +157,11 @@ function LoginForm() {
 
 function LoginFormFallback() {
   return (
-    <Card>
+    <Card className="card-elevated border-0 shadow-xl">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold tracking-tight">SiTA</CardTitle>
-        <CardDescription>Sistem Bimbingan Tugas Akhir</CardDescription>
+        <CardTitle className="text-2xl font-bold">SiTA</CardTitle>
+        <CardDescription>Memuat formulir...</CardDescription>
       </CardHeader>
-      <CardContent>
-        <p className="text-center text-sm text-muted-foreground">Memuat...</p>
-      </CardContent>
     </Card>
   )
 }

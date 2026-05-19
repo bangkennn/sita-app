@@ -1,9 +1,10 @@
 "use client"
 
-import { Menu } from "lucide-react"
+import { Bell, BookOpen, FileText, LayoutDashboard, Menu } from "lucide-react"
 import { useState } from "react"
 
 import { MahasiswaSidebar } from "@/components/mahasiswa/mahasiswa-sidebar"
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 import {
   NotificationsProvider,
@@ -29,7 +30,7 @@ function MahasiswaShellInner({ profile, children }: MahasiswaShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex min-h-full bg-muted/20">
+    <div className="flex min-h-full bg-slate-50">
       <div className="hidden lg:flex lg:shrink-0">
         <MahasiswaSidebar
           profile={profile}
@@ -70,7 +71,17 @@ function MahasiswaShellInner({ profile, children }: MahasiswaShellProps) {
           <NotificationBell viewAllHref="/mahasiswa/notifikasi" />
         </header>
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-8 lg:p-8">
+          {children}
+        </main>
+        <MobileBottomNav
+          items={[
+            { href: "/mahasiswa/dashboard", label: "Home", icon: LayoutDashboard },
+            { href: "/mahasiswa/pengajuan", label: "Ajukan", icon: FileText },
+            { href: "/mahasiswa/bimbingan", label: "Bimbingan", icon: BookOpen },
+            { href: "/mahasiswa/notifikasi", label: "Notif", icon: Bell },
+          ]}
+        />
       </div>
     </div>
   )

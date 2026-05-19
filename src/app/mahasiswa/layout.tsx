@@ -1,11 +1,18 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { Toaster } from "sonner"
 
 import { MahasiswaShell } from "@/components/mahasiswa/mahasiswa-shell"
 import { auth } from "@/auth"
 import { getDashboardPath } from "@/lib/dashboard"
 import type { MahasiswaProfile } from "@/lib/mahasiswa/types"
 import { getMahasiswaByUserId } from "@/lib/mahasiswa/auth"
+
+export const metadata: Metadata = {
+  title: {
+    default: "Portal Mahasiswa",
+    template: "%s | Mahasiswa SiTA",
+  },
+}
 
 export default async function MahasiswaLayout({
   children,
@@ -41,7 +48,6 @@ export default async function MahasiswaLayout({
       <MahasiswaShell profile={profile}>
         {children}
       </MahasiswaShell>
-      <Toaster richColors position="top-right" />
     </>
   )
 }

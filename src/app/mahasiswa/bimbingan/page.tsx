@@ -7,7 +7,10 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { MahasiswaDosenFiles } from "@/components/mahasiswa/mahasiswa-dosen-files"
-import { FASE_LABELS, STATUS_BAB_LABELS, STATUS_LABELS } from "@/lib/admin/labels"
+import { FASE_LABELS } from "@/lib/admin/labels"
+import { StatusBabBadge, FaseBadge } from "@/components/ui/status-badge"
+import { BAB_BORDER_STYLES } from "@/lib/ui/status-badges"
+import { cn } from "@/lib/utils"
 import { formatPembimbingNames } from "@/lib/mahasiswa/format-pembimbing"
 import type { DokumenItem, PengajuanDetail } from "@/lib/mahasiswa/types"
 import { Badge } from "@/components/ui/badge"
@@ -277,7 +280,7 @@ export default function MahasiswaBimbinganPage() {
                 Pembimbing: {formatPembimbingNames(data.pengajuan.dosen, data.pengajuan.dosen2)}
               </p>
             </div>
-            <Badge variant="outline">{FASE_LABELS[data.pengajuan.fase]}</Badge>
+            <FaseBadge fase={data.pengajuan.fase} />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -315,21 +318,17 @@ export default function MahasiswaBimbinganPage() {
             const canUpload = status === "BELUM_UPLOAD" || status === "PERLU_REVISI"
 
             return (
-              <Card key={babNum}>
+              <Card
+                key={babNum}
+                className={cn(
+                  "border-l-4",
+                  BAB_BORDER_STYLES[status]
+                )}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">Bab {babNum}</CardTitle>
-                    <Badge
-                      variant={
-                        status === "ACC"
-                          ? "default"
-                          : status === "PERLU_REVISI"
-                            ? "destructive"
-                            : "secondary"
-                      }
-                    >
-                      {STATUS_BAB_LABELS[status]}
-                    </Badge>
+                    <StatusBabBadge status={status} />
                   </div>
                   {dokumen && (
                     <p className="text-sm text-muted-foreground">{dokumen.judulBab}</p>
