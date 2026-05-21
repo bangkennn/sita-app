@@ -126,6 +126,9 @@ model Pengajuan {
   fase           FaseBimbingan   @default(BAB_1_3)
   qrTerkirim     Boolean         @default(false)
   qrTerkirimAt   DateTime?
+  formulirUrl      String?
+  formulirPublicId String?
+  tanggalSelesai   DateTime?
   catatanDosen   String?
   dokumen        Dokumen[]
   notifikasi     Notifikasi[]

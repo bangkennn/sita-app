@@ -28,6 +28,8 @@ function mapPengajuanWithRelations(
     fase: PengajuanWithRelations["fase"]
     qrTerkirim: boolean
     qrTerkirimAt: Date | null
+    formulirUrl: string | null
+    tanggalSelesai: Date | null
     catatanDosen: string | null
     createdAt: Date
     mahasiswa: { id: string; nama: string; nim: string; prodi: string; angkatan: number }
@@ -70,6 +72,8 @@ function mapPengajuanWithRelations(
     fase: pengajuan.fase,
     qrTerkirim: pengajuan.qrTerkirim,
     qrTerkirimAt: pengajuan.qrTerkirimAt?.toISOString() ?? null,
+    formulirUrl: pengajuan.formulirUrl,
+    tanggalSelesai: pengajuan.tanggalSelesai?.toISOString() ?? null,
     catatanDosen: pengajuan.catatanDosen,
     createdAt: pengajuan.createdAt.toISOString(),
     mahasiswa: pengajuan.mahasiswa,

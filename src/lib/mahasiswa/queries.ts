@@ -1,4 +1,5 @@
 import type { NotifikasiItem, PengajuanDetail } from "@/lib/mahasiswa/types"
+import { mapDokumenItem } from "@/lib/mahasiswa/map-dokumen"
 import { prisma } from "@/lib/prisma"
 
 const dosenSelect = {
@@ -6,6 +7,7 @@ const dosenSelect = {
   nama: true,
   nip: true,
   prodi: true,
+  qrCodeUrl: true,
 } as const
 
 export async function getUnreadNotifikasiCount(userId: string): Promise<number> {
@@ -39,7 +41,14 @@ export async function getPengajuanByMahasiswaId(
     where: { mahasiswaId },
     include: {
       dosen: { select: dosenSelect },
-      dosen2: { select: dosenSelect },
+      dosen2: { select: { id: true, nama: true, nip: true, prodi: true } },
+      dokumen: {
+        include: {
+          komentar: { orderBy: { createdAt: "asc" } },
+          dosenFiles: { orderBy: { uploadedAt: "desc" } },
+        },
+        orderBy: [{ nomorBab: "asc" }, { versi: "desc" }],
+      },
     },
   })
 
@@ -51,9 +60,20 @@ export async function getPengajuanByMahasiswaId(
     status: row.status,
     fase: row.fase,
     skFileUrl: row.skFileUrl,
+    qrTerkirim: row.qrTerkirim,
+    qrTerkirimAt: row.qrTerkirimAt?.toISOString() ?? null,
+    qrCodeUrl: row.dosen.qrCodeUrl,
+    formulirUrl: row.formulirUrl,
+    tanggalSelesai: row.tanggalSelesai?.toISOString() ?? null,
     catatanDosen: row.catatanDosen,
     createdAt: row.createdAt.toISOString(),
-    dosen: row.dosen,
+    dosen: {
+      id: row.dosen.id,
+      nama: row.dosen.nama,
+      nip: row.dosen.nip,
+      prodi: row.dosen.prodi,
+    },
     dosen2: row.dosen2,
+    dokumen: row.dokumen.map(mapDokumenItem),
   }
 }

@@ -2,20 +2,29 @@
 
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import { Check, Download, Edit3, Paperclip, Send } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-import { DosenSentFilesList } from "@/components/dosen/dosen-sent-files-list"
-import { KirimBerkasModal } from "@/components/dosen/kirim-berkas-modal"
-import { FASE_LABELS } from "@/lib/admin/labels"
-import { FaseBadge, StatusBabBadge } from "@/components/ui/status-badge"
-import { BAB_BORDER_STYLES } from "@/lib/ui/status-badges"
-import { cn } from "@/lib/utils"
+import { DokumenReviewCard } from "@/components/dosen/dokumen-review-card"
+import { SelesaikanFormulirModal } from "@/components/dosen/selesaikan-formulir-modal"
+import { FaseBadge } from "@/components/ui/status-badge"
+import {
+  allBabsAcc,
+  countAccForBabs,
+  getLatestDokumenPerBab,
+} from "@/lib/bimbingan/dokumen"
 import type { DokumenItem, PengajuanWithRelations } from "@/lib/dosen/types"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+
+function getLatestDokumen(
+  dokumen: DokumenItem[],
+  nomorBab: number
+): DokumenItem | null {
+  const map = getLatestDokumenPerBab(dokumen, [nomorBab])
+  return map.get(nomorBab) ?? null
+}
 
 export default function DosenMahasiswaDetailPage({
   params,
@@ -29,6 +38,7 @@ export default function DosenMahasiswaDetailPage({
   const [komentarInputs, setKomentarInputs] = useState<Record<string, string>>({})
   const [submittingKomentar, setSubmittingKomentar] = useState<Record<string, boolean>>({})
   const [berkasModalDokumenId, setBerkasModalDokumenId] = useState<string | null>(null)
+  const [formulirModalOpen, setFormulirModalOpen] = useState(false)
 
   useEffect(() => {
     fetchPengajuan()
@@ -39,7 +49,9 @@ export default function DosenMahasiswaDetailPage({
       const res = await fetch("/api/dosen/pengajuan")
       const data = await res.json()
       if (data.success) {
-        const found = data.data.find((p: PengajuanWithRelations) => p.id === params.pengajuanId)
+        const found = data.data.find(
+          (p: PengajuanWithRelations) => p.id === params.pengajuanId
+        )
         setPengajuan(found || null)
       }
     } catch {
@@ -56,7 +68,6 @@ export default function DosenMahasiswaDetailPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, komentar: komentarInputs[dokumenId] }),
       })
-
       const result = await res.json()
       if (result.success) {
         toast.success(result.message)
@@ -76,7 +87,6 @@ export default function DosenMahasiswaDetailPage({
       toast.error("Komentar wajib diisi")
       return
     }
-
     setSubmittingKomentar((prev) => ({ ...prev, [dokumenId]: true }))
     try {
       const res = await fetch(`/api/dosen/dokumen/${dokumenId}/komentar`, {
@@ -84,7 +94,6 @@ export default function DosenMahasiswaDetailPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ komentar }),
       })
-
       const result = await res.json()
       if (result.success) {
         toast.success(result.message)
@@ -106,10 +115,9 @@ export default function DosenMahasiswaDetailPage({
       const res = await fetch(`/api/dosen/kirim-qr/${params.pengajuanId}`, {
         method: "POST",
       })
-
       const result = await res.json()
       if (result.success) {
-        toast.success(result.message)
+        toast.success(result.message ?? "QR Code berhasil dikirim!")
         fetchPengajuan()
       } else {
         toast.error(result.message)
@@ -129,7 +137,6 @@ export default function DosenMahasiswaDetailPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fase: "BAB_4_5" }),
       })
-
       const result = await res.json()
       if (result.success) {
         toast.success(result.message)
@@ -144,72 +151,11 @@ export default function DosenMahasiswaDetailPage({
     }
   }
 
-  function getAllBab123Acc(): boolean {
-    if (!pengajuan) return false
-    const bab123 = pengajuan.dokumen.filter((d) => [1, 2, 3].includes(d.nomorBab))
-    return bab123.every((d) => d.status === "ACC")
-  }
-
-  function canShowQrSection(): boolean {
-    return getAllBab123Acc() && pengajuan?.fase === "BAB_1_3"
-  }
-
-  function canShowLanjutSection(): boolean {
-    return Boolean(pengajuan?.qrTerkirim && pengajuan?.fase === "SEMPRO")
-  }
-
-  function getAllBab45Acc(): boolean {
-    if (!pengajuan) return false
-    const bab45 = pengajuan.dokumen.filter((d) => [4, 5].includes(d.nomorBab))
-    return bab45.length >= 2 && bab45.every((d) => d.status === "ACC")
-  }
-
-  function canShowSelesaiSection(): boolean {
-    return pengajuan?.fase === "BAB_4_5" && getAllBab45Acc()
-  }
-
-  async function handleSelesai() {
-    setUpdatingFase(true)
-    try {
-      const res = await fetch(`/api/dosen/pengajuan/${params.pengajuanId}/fase`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fase: "SELESAI" }),
-      })
-
-      const result = await res.json()
-      if (result.success) {
-        toast.success(result.message)
-        fetchPengajuan()
-      } else {
-        toast.error(result.message)
-      }
-    } catch {
-      toast.error("Gagal menyelesaikan bimbingan")
-    } finally {
-      setUpdatingFase(false)
-    }
-  }
-
-  function getDokumenForFase(): DokumenItem[] {
-    if (!pengajuan) return []
-    const fase = pengajuan.fase
-    if (fase === "BAB_1_3") {
-      return pengajuan.dokumen.filter((d) => [1, 2, 3].includes(d.nomorBab))
-    }
-    if (fase === "BAB_4_5") {
-      return pengajuan.dokumen.filter((d) => [4, 5].includes(d.nomorBab))
-    }
-    return pengajuan.dokumen
-  }
-
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Detail Bimbingan</h1>
-          <p className="text-sm text-muted-foreground">Memuat data...</p>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Detail Bimbingan</h1>
+        <p className="text-sm text-muted-foreground">Memuat data...</p>
       </div>
     )
   }
@@ -217,241 +163,239 @@ export default function DosenMahasiswaDetailPage({
   if (!pengajuan) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Detail Bimbingan</h1>
-          <p className="text-sm text-muted-foreground">Pengajuan tidak ditemukan</p>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Detail Bimbingan</h1>
+        <p className="text-sm text-muted-foreground">Pengajuan tidak ditemukan</p>
+      </div>
+    )
+  }
+
+  const showBab13 =
+    pengajuan.status === "DITERIMA" &&
+    ["BAB_1_3", "SEMPRO", "BAB_4_5", "SELESAI"].includes(pengajuan.fase)
+  const showSempro = pengajuan.qrTerkirim
+  const showBab45 = pengajuan.fase === "BAB_4_5" || pengajuan.fase === "SELESAI"
+
+  const accBab13 = countAccForBabs(pengajuan.dokumen, [1, 2, 3])
+  const accBab45 = countAccForBabs(pengajuan.dokumen, [4, 5])
+  const allBab123Acc = allBabsAcc(pengajuan.dokumen, [1, 2, 3])
+  const allBab45Acc = allBabsAcc(pengajuan.dokumen, [4, 5])
+
+  const showKirimQrBtn =
+    pengajuan.fase === "BAB_1_3" && allBab123Acc && !pengajuan.qrTerkirim
+
+  const showBab45SelesaiBtn =
+    pengajuan.fase === "BAB_4_5" && allBab45Acc
+
+  function renderBabSection(babNumbers: number[]) {
+    return (
+      <div className="space-y-4">
+        {babNumbers.map((n) => {
+          const dokumen = getLatestDokumen(pengajuan!.dokumen, n)
+          const dokumenId = dokumen?.id ?? `bab-${n}`
+          return (
+            <DokumenReviewCard
+              key={dokumenId}
+              dokumen={dokumen}
+              nomorBab={n}
+              komentarValue={komentarInputs[dokumen?.id ?? ""] || ""}
+              onKomentarChange={(v) =>
+                dokumen &&
+                setKomentarInputs((prev) => ({ ...prev, [dokumen.id]: v }))
+              }
+              onAddKomentar={() => dokumen && handleAddKomentar(dokumen.id)}
+              submittingKomentar={Boolean(
+                dokumen && submittingKomentar[dokumen.id]
+              )}
+              onReview={(status) => dokumen && handleReview(dokumen.id, status)}
+              berkasModalOpen={berkasModalDokumenId === dokumen?.id}
+              onBerkasModalOpenChange={(open) =>
+                setBerkasModalDokumenId(open && dokumen ? dokumen.id : null)
+              }
+              onUpdated={fetchPengajuan}
+            />
+          )
+        })}
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Detail Bimbingan</h1>
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <CardTitle className="text-lg">{pengajuan.mahasiswa.nama}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                NIM: {pengajuan.mahasiswa.nim} • {pengajuan.mahasiswa.prodi}
-              </p>
-              <p className="text-sm font-medium mt-2">{pengajuan.judulSkripsi}</p>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="text-xl">{pengajuan.mahasiswa.nama}</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  NIM {pengajuan.mahasiswa.nim} • {pengajuan.mahasiswa.prodi}
+                </p>
+              </div>
+              <FaseBadge fase={pengajuan.fase} />
             </div>
-            <FaseBadge fase={pengajuan.fase} />
+            <p className="font-medium text-gray-800">{pengajuan.judulSkripsi}</p>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="border-[#2C5EAD] text-[#2C5EAD]">
+                Pembimbing 1: {pengajuan.dosen.nama}
+              </Badge>
+              {pengajuan.dosen2 && (
+                <Badge variant="outline" className="border-indigo-300 text-indigo-700">
+                  Pembimbing 2: {pengajuan.dosen2.nama}
+                </Badge>
+              )}
+            </div>
           </div>
         </CardHeader>
       </Card>
 
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Dokumen Review</h2>
-          <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
-            Catatan: Dokumen yang diupload sebelum pembaruan sistem perlu di-upload
-            ulang oleh mahasiswa agar file dapat diunduh.
+      {showBab13 && (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-[#2C5EAD]">Bab 1 - 3</h2>
+            <Badge className="bg-[#2C5EAD] text-white hover:bg-[#2C5EAD]">
+              {accBab13}/3 ACC
+            </Badge>
+          </div>
+          {renderBabSection([1, 2, 3])}
+          <p className="text-sm text-muted-foreground">
+            {accBab13} dari 3 bab telah ACC
           </p>
-        </div>
-        <div className="space-y-4">
-          {getDokumenForFase().map((dokumen) => (
-            <Card
-              key={dokumen.id}
-              className={cn("border-l-4", BAB_BORDER_STYLES[dokumen.status])}
+
+          {showKirimQrBtn && (
+            <div className="mt-4 rounded-2xl border-2 border-[#2C5EAD] bg-[#EEF3FB] p-6">
+              <div className="mb-2 flex items-center gap-2">
+                <span>🎯</span>
+                <h3 className="font-bold text-[#2C5EAD]">Bab 1-3 Selesai!</h3>
+              </div>
+              <p className="mb-4 text-sm text-gray-600">
+                Semua bab 1-3 telah disetujui. Klik tombol di bawah untuk mengirimkan
+                QR Code kepada mahasiswa sebagai tanda ACC untuk Seminar Proposal
+                (Sempro).
+              </p>
+              <Button
+                onClick={handleKirimQr}
+                disabled={sendingQr}
+                className="bg-[#2C5EAD] text-white hover:bg-[#1E4080]"
+              >
+                {sendingQr ? "Mengirim..." : "📤 Kirim QR Code & Buka Sempro"}
+              </Button>
+            </div>
+          )}
+
+          {pengajuan.qrTerkirim && pengajuan.qrTerkirimAt && (
+            <div className="mt-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50 p-4">
+              <p className="font-medium text-emerald-700">
+                ✅ QR Code telah dikirim pada{" "}
+                {format(new Date(pengajuan.qrTerkirimAt), "dd MMMM yyyy HH:mm", {
+                  locale: localeId,
+                })}
+              </p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {showSempro && (
+        <section>
+          <div className="rounded-2xl border-2 border-purple-300 bg-purple-50 p-6">
+            <div className="mb-2 flex items-center gap-2">
+              <span>🎤</span>
+              <h3 className="font-bold text-purple-700">Seminar Proposal (Sempro)</h3>
+            </div>
+            <p className="mb-4 text-sm text-gray-600">
+              QR Code telah dikirim ke mahasiswa untuk keperluan Sempro dan Turnitin.
+              Setelah mahasiswa menyelesaikan Sempro, klik tombol di bawah untuk
+              melanjutkan ke bimbingan Bab 4-5.
+            </p>
+            <Button
+              onClick={handleLanjutBab45}
+              disabled={
+                updatingFase ||
+                pengajuan.fase === "BAB_4_5" ||
+                pengajuan.fase === "SELESAI"
+              }
+              className="bg-purple-600 text-white hover:bg-purple-700"
             >
-              <CardHeader className="pb-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <CardTitle className="text-base">Bab {dokumen.nomorBab}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{dokumen.judulBab}</p>
-                  </div>
-                  <StatusBabBadge status={dokumen.status} />
-                </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span>Versi {dokumen.versi}</span>
-                  <span>
-                    Upload:{" "}
-                    {format(new Date(dokumen.uploadedAt), "dd MMM yyyy", {
-                      locale: localeId,
-                    })}
-                  </span>
-                  {dokumen.reviewedAt && (
-                    <span>
-                      Review:{" "}
-                      {format(new Date(dokumen.reviewedAt), "dd MMM yyyy", {
-                        locale: localeId,
-                      })}
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              {updatingFase
+                ? "Memproses..."
+                : pengajuan.fase === "BAB_4_5" || pengajuan.fase === "SELESAI"
+                  ? "✅ Sudah Lanjut ke Bab 4-5"
+                  : "▶ Lanjut ke Bab 4-5"}
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {showBab45 && (
+        <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-indigo-700">Bab 4 - 5</h2>
+            <Badge className="bg-indigo-600 text-white hover:bg-indigo-600">
+              {accBab45}/2 ACC
+            </Badge>
+          </div>
+          {renderBabSection([4, 5])}
+          <p className="text-sm text-muted-foreground">
+            {accBab45} dari 2 bab telah ACC
+          </p>
+
+          {showBab45SelesaiBtn && (
+            <div className="mt-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50 p-6">
+              <div className="mb-2 flex items-center gap-2">
+                <span>🎓</span>
+                <h3 className="font-bold text-emerald-700">Bab 4-5 Selesai!</h3>
+              </div>
+              <p className="mb-4 text-sm text-gray-600">
+                Semua bab telah disetujui. Upload formulir bimbingan yang telah
+                ditandatangani untuk menyelesaikan bimbingan ini.
+              </p>
+              <Button
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                onClick={() => setFormulirModalOpen(true)}
+              >
+                📋 Selesaikan & Kirim Formulir
+              </Button>
+            </div>
+          )}
+
+          {pengajuan.fase === "SELESAI" && (
+            <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50 p-6">
+              <h3 className="font-bold text-emerald-700">✅ Bimbingan Selesai</h3>
+              {pengajuan.tanggalSelesai && (
+                <p className="mt-1 text-sm text-gray-500">
+                  Diselesaikan pada{" "}
+                  {format(new Date(pengajuan.tanggalSelesai), "dd MMMM yyyy HH:mm", {
+                    locale: localeId,
+                  })}
+                </p>
+              )}
+              {pengajuan.formulirUrl && (
                 <a
-                  href={dokumen.fileUrl}
+                  href={pengajuan.formulirUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   download
                 >
-                  <Button variant="outline" size="sm" type="button">
-                    <Download className="mr-2 size-4" />
-                    Download Dokumen
+                  <Button variant="outline" className="mt-3" type="button">
+                    📄 Lihat Formulir
                   </Button>
                 </a>
-
-                {dokumen.komentar.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-slate-700">
-                      Thread Komentar
-                    </p>
-                    {dokumen.komentar.map((k) => (
-                      <div
-                        key={k.id}
-                        className="ml-auto max-w-[85%] rounded-2xl rounded-tl-none bg-[#EEF3FB] px-4 py-2 text-sm text-gray-800"
-                      >
-                        {k.isiKomentar}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Textarea
-                    placeholder="Tambahkan komentar..."
-                    value={komentarInputs[dokumen.id] || ""}
-                    onChange={(e) =>
-                      setKomentarInputs((prev) => ({
-                        ...prev,
-                        [dokumen.id]: e.target.value,
-                      }))
-                    }
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleAddKomentar(dokumen.id)}
-                      disabled={submittingKomentar[dokumen.id]}
-                    >
-                      Tambah Komentar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      type="button"
-                      onClick={() => setBerkasModalDokumenId(dokumen.id)}
-                    >
-                      <Paperclip className="mr-1 size-4" />
-                      Kirim Berkas
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="success"
-                      onClick={() => handleReview(dokumen.id, "ACC")}
-                    >
-                      <Check className="mr-1 size-4" />
-                      ACC
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-orange-500 text-white hover:bg-orange-600"
-                      onClick={() => handleReview(dokumen.id, "PERLU_REVISI")}
-                    >
-                      <Edit3 className="mr-1 size-4" />
-                      Revisi
-                    </Button>
-                  </div>
-                </div>
-
-                <DosenSentFilesList
-                  files={dokumen.dosenFiles}
-                  onUpdated={fetchPengajuan}
-                />
-
-                <KirimBerkasModal
-                  open={berkasModalDokumenId === dokumen.id}
-                  onOpenChange={(open) =>
-                    setBerkasModalDokumenId(open ? dokumen.id : null)
-                  }
-                  dokumenId={dokumen.id}
-                  onSuccess={fetchPengajuan}
-                />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      {canShowQrSection() && (
-        <Card className="overflow-hidden rounded-2xl border-2 border-[#2C5EAD] shadow-sm">
-          <CardHeader className="border-b border-[#2C5EAD]/20 bg-[#EEF3FB]">
-            <CardTitle className="text-[#2C5EAD]">
-              Kirim QR Code Seminar Proposal
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {pengajuan.qrTerkirim ? (
-              <p className="text-sm text-gray-600">
-                QR Code sudah dikirim pada{" "}
-                {format(new Date(pengajuan.qrTerkirimAt!), "dd MMM yyyy HH:mm", {
-                  locale: localeId,
-                })}
-              </p>
-            ) : (
-              <Button onClick={handleKirimQr} disabled={sendingQr} size="lg">
-                <Send className="mr-2 size-4" />
-                {sendingQr ? "Mengirim..." : "Kirim QR Code ke Mahasiswa"}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </div>
+          )}
+        </section>
       )}
 
-      {canShowLanjutSection() && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Lanjut Bimbingan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={handleLanjutBab45}
-              disabled={updatingFase}
-              className="w-full sm:w-auto"
-            >
-              {updatingFase ? "Memproses..." : "Lanjut ke Bab 4-5"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {canShowSelesaiSection() && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Selesaikan Bimbingan</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Semua bab 4–5 telah ACC. Tandai bimbingan sebagai selesai.
-            </p>
-            <Button
-              onClick={handleSelesai}
-              disabled={updatingFase}
-              className="w-full sm:w-auto"
-            >
-              {updatingFase ? "Memproses..." : "Tandai Bimbingan Selesai"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {pengajuan.fase === "SEMPRO" && (
-        <Card>
-          <CardContent className="py-6">
-            <p className="text-sm text-muted-foreground">
-              Mahasiswa sedang dalam fase Seminar Proposal. Setelah selesai, lanjutkan ke Bab 4–5.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <SelesaikanFormulirModal
+        open={formulirModalOpen}
+        onOpenChange={setFormulirModalOpen}
+        pengajuanId={params.pengajuanId}
+        onSuccess={fetchPengajuan}
+      />
     </div>
   )
 }

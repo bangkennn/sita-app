@@ -6,11 +6,13 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
-import { FASE_LABELS, STATUS_LABELS } from "@/lib/admin/labels"
+import { FASE_LABELS, getInitials } from "@/lib/admin/labels"
+import { getProgressForFase } from "@/lib/bimbingan/dokumen"
+import { faseBadgeClass } from "@/lib/ui/status-badges"
+import { cn } from "@/lib/utils"
 import type { PengajuanWithRelations } from "@/lib/dosen/types"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -55,7 +57,6 @@ export default function DosenMahasiswaPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "terima" }),
       })
-
       const result = await res.json()
       if (result.success) {
         toast.success(result.message)
@@ -75,7 +76,6 @@ export default function DosenMahasiswaPage() {
       toast.error("Catatan wajib diisi")
       return
     }
-
     setProcessing(true)
     try {
       const res = await fetch(`/api/dosen/pengajuan/${selectedPengajuanId}`, {
@@ -83,7 +83,6 @@ export default function DosenMahasiswaPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "tolak", catatan: catatan.trim() }),
       })
-
       const result = await res.json()
       if (result.success) {
         toast.success(result.message)
@@ -101,40 +100,16 @@ export default function DosenMahasiswaPage() {
     }
   }
 
-  function getProgress(p: PengajuanWithRelations): number {
-    const fase = p.fase
-    if (fase === "BAB_1_3") {
-      const accCount = [1, 2, 3]
-        .map((n) => p.dokumen.find((d) => d.nomorBab === n)?.status)
-        .filter((s) => s === "ACC").length
-      return (accCount / 3) * 100
-    }
-    if (fase === "BAB_4_5") {
-      const accCount = [4, 5]
-        .map((n) => p.dokumen.find((d) => d.nomorBab === n)?.status)
-        .filter((s) => s === "ACC").length
-      return (accCount / 2) * 100
-    }
-    return 0
-  }
-
   const pending = pengajuan.filter((p) => p.status === "MENUNGGU")
-  const aktif = pengajuan.filter((p) => p.status === "DITERIMA" && p.fase !== "SELESAI")
+  const aktif = pengajuan.filter((p) => p.status === "DITERIMA")
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Mahasiswa Bimbingan</h1>
-          <p className="text-sm text-muted-foreground">
-            Kelola pengajuan dan bimbingan mahasiswa
-          </p>
+          <p className="text-sm text-muted-foreground">Memuat data...</p>
         </div>
-        <Card>
-          <CardContent className="py-10">
-            <p className="text-center text-muted-foreground">Memuat data...</p>
-          </CardContent>
-        </Card>
       </div>
     )
   }
@@ -153,47 +128,33 @@ export default function DosenMahasiswaPage() {
           <h2 className="text-lg font-semibold">Pengajuan Menunggu Persetujuan</h2>
           <div className="grid gap-4">
             {pending.map((p) => (
-              <Card key={p.id}>
-                <CardHeader>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <CardTitle className="text-base">{p.mahasiswa.nama}</CardTitle>
+              <Card key={p.id} className="overflow-hidden">
+                <CardContent className="p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold">{p.mahasiswa.nama}</p>
                       <p className="text-sm text-muted-foreground">
-                        NIM: {p.mahasiswa.nim} • {p.mahasiswa.prodi}
+                        NIM {p.mahasiswa.nim}
+                      </p>
+                      <p className="mt-2 line-clamp-2 text-sm text-gray-700">
+                        {p.judulSkripsi}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Diajukan{" "}
+                        {format(new Date(p.createdAt), "dd MMM yyyy HH:mm", {
+                          locale: localeId,
+                        })}
                       </p>
                     </div>
-                    <Badge variant="secondary">{STATUS_LABELS[p.status]}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium">Judul Skripsi</p>
-                    <p className="text-sm text-muted-foreground">{p.judulSkripsi}</p>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Diajukan pada{" "}
-                    {format(new Date(p.createdAt), "dd MMM yyyy HH:mm", {
-                      locale: localeId,
-                    })}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleTerima(p.id)}
-                      disabled={processing}
-                    >
-                      Terima
-                    </Button>
-                    <Dialog
-                      open={rejectDialogOpen && selectedPengajuanId === p.id}
-                      onOpenChange={(open) => {
-                        setRejectDialogOpen(open)
-                        if (!open) {
-                          setSelectedPengajuanId(null)
-                          setCatatan("")
-                        }
-                      }}
-                    >
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-[#2C5EAD] hover:bg-[#1E4080]"
+                        onClick={() => handleTerima(p.id)}
+                        disabled={processing}
+                      >
+                        Terima
+                      </Button>
                       <Button
                         size="sm"
                         variant="destructive"
@@ -205,35 +166,7 @@ export default function DosenMahasiswaPage() {
                       >
                         Tolak
                       </Button>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Tolak Pengajuan</DialogTitle>
-                          <DialogDescription>
-                            Masukkan alasan penolakan untuk mahasiswa
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Textarea
-                          placeholder="Masukkan catatan/penjelasan..."
-                          value={catatan}
-                          onChange={(e) => setCatatan(e.target.value)}
-                        />
-                        <DialogFooter>
-                          <Button
-                            variant="outline"
-                            onClick={() => setRejectDialogOpen(false)}
-                          >
-                            Batal
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={handleTolak}
-                            disabled={processing}
-                          >
-                            Tolak
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -242,60 +175,113 @@ export default function DosenMahasiswaPage() {
         </div>
       )}
 
+      <Dialog
+        open={rejectDialogOpen}
+        onOpenChange={(open) => {
+          setRejectDialogOpen(open)
+          if (!open) {
+            setSelectedPengajuanId(null)
+            setCatatan("")
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tolak Pengajuan</DialogTitle>
+            <DialogDescription>
+              Masukkan alasan penolakan untuk mahasiswa
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Masukkan catatan/penjelasan..."
+            value={catatan}
+            onChange={(e) => setCatatan(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleTolak} disabled={processing}>
+              Tolak
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Mahasiswa Aktif</h2>
+        <h2 className="text-lg font-semibold">Mahasiswa Bimbingan</h2>
         {aktif.length === 0 ? (
           <Card>
             <CardContent className="py-10">
               <p className="text-center text-muted-foreground">
-                Tidak ada mahasiswa aktif
+                Tidak ada mahasiswa bimbingan
               </p>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4">
-            {aktif.map((p) => (
-              <Card key={p.id}>
-                <CardHeader>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <CardTitle className="text-base">{p.mahasiswa.nama}</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        NIM: {p.mahasiswa.nim} • {p.mahasiswa.prodi}
-                      </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {aktif.map((p) => {
+              const { current, total } = getProgressForFase(p.fase, p.dokumen)
+              const progressPct = total > 0 ? (current / total) * 100 : 0
+
+              return (
+                <Card key={p.id} className="overflow-hidden">
+                  <CardContent className="p-5">
+                    <div className="flex gap-4">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#2C5EAD] text-sm font-bold text-white">
+                        {getInitials(p.mahasiswa.nama)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold leading-tight">
+                              {p.mahasiswa.nama}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {p.mahasiswa.nim}
+                            </p>
+                          </div>
+                          <span className={cn(faseBadgeClass(p.fase), "shrink-0")}>
+                            {FASE_LABELS[p.fase]}
+                          </span>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                          {p.judulSkripsi}
+                        </p>
+                        <div className="mt-3">
+                          <div className="mb-1 flex justify-between text-xs text-muted-foreground">
+                            <span>
+                              Progress{" "}
+                              {p.fase === "BAB_4_5" || p.fase === "SELESAI"
+                                ? "Bab 4-5"
+                                : "Bab 1-3"}
+                            </span>
+                            <span>
+                              {current}/{total} ACC
+                            </span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-[#2C5EAD] transition-all"
+                              style={{ width: `${progressPct}%` }}
+                            />
+                          </div>
+                        </div>
+                        <Link href={`/dosen/mahasiswa/${p.id}`} className="mt-4 block">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full border-[#2C5EAD] text-[#2C5EAD] hover:bg-[#EEF3FB]"
+                          >
+                            Lihat Detail
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                    <Badge variant="outline">{FASE_LABELS[p.fase]}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium">Judul Skripsi</p>
-                    <p className="text-sm text-muted-foreground">{p.judulSkripsi}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Progress:</span>
-                    <div className="flex-1 h-2 rounded-full bg-muted">
-                      <div
-                        className="h-2 rounded-full bg-primary"
-                        style={{ width: `${getProgress(p)}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {Math.round(getProgress(p))}%
-                    </span>
-                  </div>
-                  <Link href={`/dosen/mahasiswa/${p.id}`}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="w-full sm:w-auto"
-                    >
-                      Lihat Detail
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { requireMahasiswa } from "@/lib/mahasiswa/auth"
+import { mapDokumenItem } from "@/lib/mahasiswa/map-dokumen"
 import type { PengajuanDetail } from "@/lib/mahasiswa/types"
 import { prisma } from "@/lib/prisma"
 
@@ -9,6 +10,7 @@ const dosenSelect = {
   nama: true,
   nip: true,
   prodi: true,
+  qrCodeUrl: true,
 } as const
 
 interface SubmitPengajuanBody {
@@ -26,10 +28,15 @@ function mapPengajuanDetail(
     status: PengajuanDetail["status"]
     fase: PengajuanDetail["fase"]
     skFileUrl: string
+    qrTerkirim: boolean
+    qrTerkirimAt: Date | null
+    formulirUrl: string | null
+    tanggalSelesai: Date | null
     catatanDosen: string | null
     createdAt: Date
-    dosen: PengajuanDetail["dosen"]
+    dosen: PengajuanDetail["dosen"] & { qrCodeUrl: string | null }
     dosen2: PengajuanDetail["dosen2"]
+    dokumen: Parameters<typeof mapDokumenItem>[0][]
   }
 ): PengajuanDetail {
   return {
@@ -38,11 +45,34 @@ function mapPengajuanDetail(
     status: pengajuan.status,
     fase: pengajuan.fase,
     skFileUrl: pengajuan.skFileUrl,
+    qrTerkirim: pengajuan.qrTerkirim,
+    qrTerkirimAt: pengajuan.qrTerkirimAt?.toISOString() ?? null,
+    qrCodeUrl: pengajuan.dosen.qrCodeUrl,
+    formulirUrl: pengajuan.formulirUrl,
+    tanggalSelesai: pengajuan.tanggalSelesai?.toISOString() ?? null,
     catatanDosen: pengajuan.catatanDosen,
     createdAt: pengajuan.createdAt.toISOString(),
-    dosen: pengajuan.dosen,
+    dosen: {
+      id: pengajuan.dosen.id,
+      nama: pengajuan.dosen.nama,
+      nip: pengajuan.dosen.nip,
+      prodi: pengajuan.dosen.prodi,
+    },
     dosen2: pengajuan.dosen2,
+    dokumen: pengajuan.dokumen.map(mapDokumenItem),
   }
+}
+
+const pengajuanInclude = {
+  dosen: { select: dosenSelect },
+  dosen2: { select: { id: true, nama: true, nip: true, prodi: true } },
+  dokumen: {
+    include: {
+      komentar: { orderBy: { createdAt: "asc" as const } },
+      dosenFiles: { orderBy: { uploadedAt: "desc" as const } },
+    },
+    orderBy: [{ nomorBab: "asc" as const }, { versi: "desc" as const }],
+  },
 }
 
 export async function GET() {
@@ -52,10 +82,7 @@ export async function GET() {
   try {
     const pengajuan = await prisma.pengajuan.findUnique({
       where: { mahasiswaId: mahasiswa.id },
-      include: {
-        dosen: { select: dosenSelect },
-        dosen2: { select: dosenSelect },
-      },
+      include: pengajuanInclude,
     })
 
     if (!pengajuan) {
@@ -157,10 +184,7 @@ export async function POST(request: Request) {
           skFilePublicId,
           status: "MENUNGGU",
         },
-        include: {
-          dosen: { select: dosenSelect },
-          dosen2: { select: dosenSelect },
-        },
+        include: pengajuanInclude,
       })
 
       await tx.notifikasi.create({

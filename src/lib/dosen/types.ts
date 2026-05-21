@@ -22,6 +22,8 @@ export interface PengajuanWithRelations {
   fase: FaseBimbingan
   qrTerkirim: boolean
   qrTerkirimAt: string | null
+  formulirUrl: string | null
+  tanggalSelesai: string | null
   catatanDosen: string | null
   createdAt: string
   mahasiswa: MahasiswaInfo

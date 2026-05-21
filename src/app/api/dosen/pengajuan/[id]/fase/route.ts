@@ -4,7 +4,7 @@ import { requireDosen } from "@/lib/dosen/auth"
 import { prisma } from "@/lib/prisma"
 
 interface PatchBody {
-  fase: "BAB_4_5" | "SELESAI"
+  fase: "BAB_4_5"
 }
 
 export async function PATCH(
@@ -58,7 +58,8 @@ export async function PATCH(
           data: {
             pengajuanId: params.id,
             userId: pengajuan.mahasiswa.user.id,
-            pesan: `Bimbingan dilanjutkan ke Bab 4-5 oleh ${dosen.nama}`,
+            pesan:
+              "Dosen pembimbing telah membuka bimbingan Bab 4-5. Silakan upload dokumen Bab 4 dan 5.",
           },
         })
       })
@@ -66,38 +67,6 @@ export async function PATCH(
       return NextResponse.json({
         success: true,
         message: "Fase berhasil diperbarui.",
-      })
-    }
-
-    if (fase === "SELESAI") {
-      const allDokumen = pengajuan.dokumen
-      const allAcc = allDokumen.every((d) => d.status === "ACC")
-
-      if (!allAcc) {
-        return NextResponse.json(
-          { success: false, message: "Semua dokumen harus ACC terlebih dahulu." },
-          { status: 400 }
-        )
-      }
-
-      await prisma.$transaction(async (tx) => {
-        await tx.pengajuan.update({
-          where: { id: params.id },
-          data: { fase: "SELESAI" },
-        })
-
-        await tx.notifikasi.create({
-          data: {
-            pengajuanId: params.id,
-            userId: pengajuan.mahasiswa.user.id,
-            pesan: `Selamat! Bimbingan tugas akhir Anda telah selesai`,
-          },
-        })
-      })
-
-      return NextResponse.json({
-        success: true,
-        message: "Bimbingan selesai.",
       })
     }
 

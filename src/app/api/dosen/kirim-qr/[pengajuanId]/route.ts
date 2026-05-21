@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { allBabsAcc } from "@/lib/bimbingan/dokumen"
 import { requireDosen } from "@/lib/dosen/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -41,19 +42,21 @@ export async function POST(
       )
     }
 
-    const bab123 = pengajuan.dokumen.filter((d) => [1, 2, 3].includes(d.nomorBab))
-    const allAcc = bab123.every((d) => d.status === "ACC")
-
-    if (!allAcc) {
+    if (!allBabsAcc(pengajuan.dokumen, [1, 2, 3])) {
       return NextResponse.json(
         { success: false, message: "Semua bab 1-3 harus ACC terlebih dahulu." },
         { status: 400 }
       )
     }
 
-    if (!dosen.qrCodeUrl) {
+    const qrCodeUrl = pengajuan.dosen.qrCodeUrl
+
+    if (!qrCodeUrl) {
       return NextResponse.json(
-        { success: false, message: "QR Code Anda belum diupload." },
+        {
+          success: false,
+          message: "QR Code pembimbing utama belum diupload oleh admin.",
+        },
         { status: 400 }
       )
     }
@@ -62,7 +65,7 @@ export async function POST(
       return NextResponse.json({
         success: true,
         message: "QR Code sudah dikirim sebelumnya.",
-        qrCodeUrl: dosen.qrCodeUrl,
+        qrCodeUrl,
       })
     }
 
@@ -80,7 +83,8 @@ export async function POST(
         data: {
           pengajuanId: params.pengajuanId,
           userId: pengajuan.mahasiswa.user.id,
-          pesan: `QR Code untuk Seminar Proposal telah dikirim oleh ${dosen.nama}`,
+          pesan:
+            "✅ Dosen pembimbing telah menyetujui Bab 1-3 Anda. QR Code untuk Sempro dan Turnitin telah dikirimkan. Silakan cek menu Bimbingan.",
         },
       })
     })
@@ -88,7 +92,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: "QR Code berhasil dikirim.",
-      qrCodeUrl: dosen.qrCodeUrl,
+      qrCodeUrl,
     })
   } catch {
     return NextResponse.json(

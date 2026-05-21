@@ -33,10 +33,16 @@ export interface PengajuanDetail {
   status: StatusPengajuan
   fase: FaseBimbingan
   skFileUrl: string
+  qrTerkirim: boolean
+  qrTerkirimAt: string | null
+  qrCodeUrl: string | null
+  formulirUrl: string | null
+  tanggalSelesai: string | null
   catatanDosen: string | null
   createdAt: string
   dosen: DosenOption
   dosen2: DosenOption | null
+  dokumen: DokumenItem[]
 }
 
 export interface NotifikasiItem {
